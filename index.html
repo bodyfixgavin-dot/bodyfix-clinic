@@ -32,23 +32,25 @@ body {
   background: rgba(17,17,17,.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
-  padding: 14px 16px;
+  padding: 12px 16px;
   display: flex; align-items: center; justify-content: space-between;
 }
-.top-bar h1 { font-size: 16px; font-weight: 900; color: var(--accent); }
+.top-bar h1 { font-size: 15px; font-weight: 900; color: var(--accent); }
 .tab-toggle {
-  display: flex; gap: 8px;
+  display: flex; gap: 6px;
+  overflow-x: auto;
 }
 .tab-btn {
-  padding: 6px 14px;
+  padding: 6px 12px;
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 16px;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   cursor: pointer;
   transition: all .15s;
+  white-space: nowrap;
 }
 .tab-btn.active {
   background: var(--accent);
@@ -56,12 +58,13 @@ body {
   color: #111;
 }
 
-#quick-area, #files-area { display: none; }
-#quick-area.show, #files-area.show { display: block; }
+#quick-area, #files-area, #feedback-area { display: none; }
+#quick-area.show, #files-area.show, #feedback-area.show { display: block; }
 
-#quick-area { padding: 12px 16px; }
+#quick-area, #files-area, #feedback-area { padding: 12px 16px; }
 .row { margin-bottom: 12px; }
-.row-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; }
+.row-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.row-label-note { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-weight: 400; }
 input, textarea, select {
   width: 100%;
   background: var(--input-bg);
@@ -86,7 +89,9 @@ textarea { min-height: 60px; resize: vertical; }
   color: var(--text-muted);
   cursor: pointer;
   user-select: none;
+  transition: all .15s;
 }
+.chip:active { transform: scale(0.95); }
 .chip.on {
   background: #2a2520;
   border-color: var(--accent);
@@ -123,7 +128,6 @@ textarea { min-height: 60px; resize: vertical; }
   font-size: 13px;
 }
 
-#files-area { padding: 12px 16px; }
 .client-card {
   background: var(--card-bg);
   border-radius: 10px;
@@ -158,6 +162,36 @@ textarea { min-height: 60px; resize: vertical; }
 .btn-secondary { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); }
 
 .divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+.section-title {
+  font-size: 12px; font-weight: 900; color: var(--accent);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.option-group {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border);
+}
+
+.success-msg {
+  background: rgba(138, 174, 123, .15);
+  border: 1px solid var(--accent2);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  color: var(--accent2);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.max-2 { color: var(--text-muted); font-size: 10px; }
+.max-3 { color: var(--text-muted); font-size: 10px; }
 </style>
 </head>
 <body>
@@ -165,14 +199,15 @@ textarea { min-height: 60px; resize: vertical; }
 <div class="top-bar">
   <h1 id="top-title">BodyFix｜快速記錄</h1>
   <div class="tab-toggle">
-    <button class="tab-btn active" onclick="showQuick()">快速記錄</button>
-    <button class="tab-btn" onclick="showFiles()">個案檔案</button>
+    <button class="tab-btn active" onclick="showTab('quick')">快速記錄</button>
+    <button class="tab-btn" onclick="showTab('files')">個案檔案</button>
+    <button class="tab-btn" onclick="showTab('feedback')">問卷反饋</button>
   </div>
 </div>
 
 <div id="quick-area" class="show">
   <div class="row" style="background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px;">
-    <div class="row-label" style="margin-bottom: 8px;">選擇個案 *</div>
+    <div class="row-label">選擇個案 *</div>
     <select id="f-client">
       <option value="">-- 選擇個案編號 --</option>
     </select>
@@ -184,44 +219,50 @@ textarea { min-height: 60px; resize: vertical; }
   </div>
 
   <div class="row">
-    <div class="row-label">服務</div>
-    <div class="chips" id="f-service">
-      <div class="chip" onclick="solo(this)">筋膜鏈 60min</div>
-      <div class="chip" onclick="solo(this)">延長 +30</div>
-      <div class="chip" onclick="solo(this)">12次旗艦</div>
-      <div class="chip" onclick="solo(this)">骨盆核心測試</div>
-      <div class="chip" onclick="solo(this)">45+ 續航</div>
+    <div class="row-label">客群類型 <span class="max-2">(最多選2)</span></div>
+    <div class="chips" id="f-clienttype">
+      <div class="chip" onclick="multi(this, 2)">A 久坐高壓</div>
+      <div class="chip" onclick="multi(this, 2)">B 久站負荷</div>
+      <div class="chip" onclick="multi(this, 2)">C 重訓卡關</div>
+      <div class="chip" onclick="multi(this, 2)">D 反覆不適</div>
+      <div class="chip" onclick="multi(this, 2)">E 保護性收縮高</div>
+      <div class="chip" onclick="multi(this, 2)">F 放鬆恢復</div>
+      <div class="chip" onclick="multi(this, 2)">G 45+ 維護</div>
+      <div class="chip" onclick="multi(this, 2)">H 初次體驗</div>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-label">客群類型</div>
-    <div class="chips" id="f-type">
-      <div class="chip" onclick="solo(this)">A 久坐高壓</div>
-      <div class="chip" onclick="solo(this)">B 重訓卡關</div>
-      <div class="chip" onclick="solo(this)">C 反覆不適</div>
-      <div class="chip" onclick="solo(this)">D 高敏感</div>
-      <div class="chip" onclick="solo(this)">E 放鬆</div>
+    <div class="row-label">本次服務</div>
+    <div class="chips" id="f-service">
+      <div class="chip multi" onclick="multi(this)">筋膜鏈 60min</div>
+      <div class="chip multi" onclick="multi(this)">延長 +30</div>
+      <div class="chip multi" onclick="multi(this)">12次旗艦</div>
+      <div class="chip multi" onclick="multi(this)">骨盆核心測試</div>
+      <div class="chip multi" onclick="multi(this)">45+ 續航</div>
+      <div class="chip multi" onclick="multi(this)">教練訓練</div>
+      <div class="chip multi" onclick="multi(this)">紫微解析</div>
+      <div class="chip multi" onclick="multi(this)">塔羅整理</div>
+      <div class="chip multi" onclick="multi(this)">除毛／形象管理</div>
     </div>
   </div>
 
   <div class="row">
     <div class="row-label">主導型</div>
     <div class="chips" id="f-line">
-      <div class="chip" onclick="solo(this)">DFL</div>
-      <div class="chip" onclick="solo(this)">SBL</div>
-      <div class="chip" onclick="solo(this)">SFL</div>
-      <div class="chip" onclick="solo(this)">SL</div>
-      <div class="chip" onclick="solo(this)">FL</div>
-      <div class="chip" onclick="solo(this)">LL</div>
-      <div class="chip" onclick="solo(this)">防禦高</div>
+      <div class="chip multi" onclick="multi(this)">DFL</div>
+      <div class="chip multi" onclick="multi(this)">SBL</div>
+      <div class="chip multi" onclick="multi(this)">SFL</div>
+      <div class="chip multi" onclick="multi(this)">SL</div>
+      <div class="chip multi" onclick="multi(this)">FL</div>
+      <div class="chip multi" onclick="multi(this)">LL</div>
     </div>
   </div>
 
   <div class="divider"></div>
 
   <div class="row">
-    <div class="row-label">做了什麼（點選）</div>
+    <div class="row-label">做了什麼</div>
     <div class="chips" id="f-ops">
       <div class="chip multi" onclick="multi(this)">枕下</div>
       <div class="chip multi" onclick="multi(this)">頸</div>
@@ -269,6 +310,31 @@ textarea { min-height: 60px; resize: vertical; }
     </div>
   </div>
 
+  <div class="divider"></div>
+
+  <div class="row">
+    <div class="row-label">延伸興趣／未來可轉換方向 <span class="max-3">(最多選3)</span></div>
+    <div class="row-label-note">記錄未來可以導向哪一條服務線</div>
+    <div class="chips" id="f-extension">
+      <div class="chip multi" onclick="multi(this, 3)">12次旗艦</div>
+      <div class="chip multi" onclick="multi(this, 3)">骨盆核心</div>
+      <div class="chip multi" onclick="multi(this, 3)">45+ 續航</div>
+      <div class="chip multi" onclick="multi(this, 3)">定期維護</div>
+      <div class="chip multi" onclick="multi(this, 3)">教練訓練</div>
+      <div class="chip multi" onclick="multi(this, 3)">紫微解析</div>
+      <div class="chip multi" onclick="multi(this, 3)">塔羅整理</div>
+      <div class="chip multi" onclick="multi(this, 3)">除毛／形象管理</div>
+      <div class="chip multi" onclick="multi(this, 3)">暫不適合</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="row-label">轉換備註</div>
+    <textarea id="f-conversion" placeholder="例：他對紫微有興趣，但目前先做身體整理&#10;例：下次可以聊骨盆核心&#10;例：適合定期維護，但還沒準備好買方案"></textarea>
+  </div>
+
+  <div class="divider"></div>
+
   <div class="row">
     <div class="row-label">回訪意願</div>
     <div class="stars" id="f-return">
@@ -283,16 +349,37 @@ textarea { min-height: 60px; resize: vertical; }
   <div class="row">
     <div class="row-label">升級潛力</div>
     <div class="chips" id="f-upgrade">
-      <div class="chip" onclick="solo(this)">12次旗艦</div>
-      <div class="chip" onclick="solo(this)">骨盆核心</div>
-      <div class="chip" onclick="solo(this)">45+ 續航</div>
-      <div class="chip" onclick="solo(this)">定期維護</div>
-      <div class="chip" onclick="solo(this)">暫不適合</div>
+      <div class="chip multi" onclick="multi(this)">12次旗艦</div>
+      <div class="chip multi" onclick="multi(this)">骨盆核心</div>
+      <div class="chip multi" onclick="multi(this)">45+ 續航</div>
+      <div class="chip multi" onclick="multi(this)">定期維護</div>
+      <div class="chip multi" onclick="multi(this)">教練訓練</div>
+      <div class="chip multi" onclick="multi(this)">紫微解析</div>
+      <div class="chip multi" onclick="multi(this)">塔羅整理</div>
+      <div class="chip multi" onclick="multi(this)">除毛／形象管理</div>
+      <div class="chip multi" onclick="multi(this)">暫不適合</div>
     </div>
   </div>
 
   <div class="row">
-    <div class="row-label">備註（選填）</div>
+    <div class="row-label">後續安排</div>
+    <div class="chips" id="f-followup">
+      <div class="chip multi" onclick="multi(this)">已約下次</div>
+      <div class="chip multi" onclick="multi(this)">有興趣但未約</div>
+      <div class="chip multi" onclick="multi(this)">需 3 天後追蹤</div>
+      <div class="chip multi" onclick="multi(this)">需 7 天後追蹤</div>
+      <div class="chip multi" onclick="multi(this)">暫不追蹤</div>
+      <div class="chip multi" onclick="multi(this)">不適合</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="row-label">追蹤日期</div>
+    <input type="date" id="f-followupdate">
+  </div>
+
+  <div class="row">
+    <div class="row-label">其他備註（選填）</div>
     <textarea id="f-note" placeholder="任何想記的"></textarea>
   </div>
 </div>
@@ -302,10 +389,81 @@ textarea { min-height: 60px; resize: vertical; }
   <div id="files-empty" class="empty-hint">還沒有個案檔案<br>按下方「新增」開始建檔</div>
 </div>
 
+<div id="feedback-area">
+  <div id="feedback-content">
+    <div class="row" style="background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 14px;">
+      <div class="row-label">這次服務是哪位客人的？ *</div>
+      <select id="fb-client">
+        <option value="">-- 選擇個案編號 --</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="row-label">做完後的改善感 *</div>
+      <div class="option-group">
+        <div class="chips">
+          <div class="chip" onclick="solo(this)">沒有感覺</div>
+          <div class="chip" onclick="solo(this)">有點改善</div>
+          <div class="chip" onclick="solo(this)">明顯改善</div>
+          <div class="chip" onclick="solo(this)">非常有改善</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row-label">回訪意願 *</div>
+      <div class="option-group">
+        <div class="chips">
+          <div class="chip" onclick="solo(this)">沒興趣</div>
+          <div class="chip" onclick="solo(this)">可能再來</div>
+          <div class="chip" onclick="solo(this)">很想再來</div>
+          <div class="chip" onclick="solo(this)">一定會回訪</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row-label">對方案的興趣 *</div>
+      <div class="option-group">
+        <div class="chips">
+          <div class="chip" onclick="solo(this)">暫不考慮</div>
+          <div class="chip" onclick="solo(this)">想了解一下</div>
+          <div class="chip" onclick="solo(this)">很有興趣</div>
+          <div class="chip" onclick="solo(this)">直接想簽</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row-label">整體滿意度 *</div>
+      <div class="stars" id="fb-rating">
+        <div class="star" onclick="star(this)">1</div>
+        <div class="star" onclick="star(this)">2</div>
+        <div class="star" onclick="star(this)">3</div>
+        <div class="star" onclick="star(this)">4</div>
+        <div class="star" onclick="star(this)">5</div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row-label">其他感想（選填）</div>
+      <textarea id="fb-notes" placeholder="有什麼想說的都可以寫..."></textarea>
+    </div>
+  </div>
+
+  <div id="feedback-success" style="display:none;">
+    <div class="success-msg">✓ 感謝回饋！已記錄</div>
+    <div style="text-align:center; padding:20px;">
+      <button class="btn btn-secondary" onclick="resetFeedback()" style="width:100%;">再填一份</button>
+    </div>
+  </div>
+</div>
+
 <div class="bottom-bar">
   <button class="btn btn-secondary" id="btn-export" onclick="exportRecords()" style="display:none">複製</button>
   <button class="btn btn-secondary" id="btn-add-client" onclick="showAddClient()" style="display:none">新增</button>
-  <button class="btn btn-primary" id="btn-save" onclick="saveRecord()">存＋下一位</button>
+  <button class="btn btn-primary" id="btn-save" onclick="saveRecord()" style="display:none">存＋下一位</button>
+  <button class="btn btn-primary" id="btn-submit-feedback" onclick="submitFeedback()" style="display:none">提交回饋</button>
 </div>
 
 <script>
@@ -329,27 +487,73 @@ async function loadData() {
   } catch (e) {
     console.error('Load error:', e);
   }
-  renderClientSelect();
-  updateUI();
+  renderClientSelects();
 }
 
-function renderClientSelect() {
-  const sel = document.getElementById('f-client');
-  sel.innerHTML = '<option value="">-- 選擇個案編號 --</option>';
-  clients.forEach(c => {
-    const id = String(c.id).padStart(3, '0');
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = '#' + id + ' ' + c.name;
-    sel.appendChild(opt);
+function renderClientSelects() {
+  [document.getElementById('f-client'), document.getElementById('fb-client')].forEach(sel => {
+    if (!sel) return;
+    sel.innerHTML = '<option value="">-- 選擇個案編號 --</option>';
+    clients.forEach(c => {
+      const id = String(c.id).padStart(3, '0');
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = '#' + id + ' ' + c.name;
+      sel.appendChild(opt);
+    });
   });
+}
+
+function showTab(tab) {
+  document.getElementById('quick-area').classList.remove('show');
+  document.getElementById('files-area').classList.remove('show');
+  document.getElementById('feedback-area').classList.remove('show');
+  document.getElementById('btn-save').style.display = 'none';
+  document.getElementById('btn-export').style.display = 'none';
+  document.getElementById('btn-add-client').style.display = 'none';
+  document.getElementById('btn-submit-feedback').style.display = 'none';
+  
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  if (tab === 'quick') {
+    document.getElementById('quick-area').classList.add('show');
+    document.getElementById('btn-save').style.display = 'flex';
+    document.getElementById('btn-export').style.display = 'flex';
+    document.getElementById('top-title').textContent = 'BodyFix｜快速記錄';
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  } else if (tab === 'files') {
+    document.getElementById('files-area').classList.add('show');
+    document.getElementById('btn-add-client').style.display = 'flex';
+    document.getElementById('top-title').textContent = 'BodyFix｜個案檔案';
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    renderFilesList();
+  } else if (tab === 'feedback') {
+    document.getElementById('feedback-area').classList.add('show');
+    document.getElementById('btn-submit-feedback').style.display = 'flex';
+    document.getElementById('top-title').textContent = 'BodyFix｜問卷反饋';
+    document.querySelectorAll('.tab-btn')[2].classList.add('active');
+  }
 }
 
 function solo(el) {
   el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
   el.classList.add('on');
 }
-function multi(el) { el.classList.toggle('on'); }
+
+function multi(el, maxCount = null) {
+  const parent = el.parentElement;
+  const selected = parent.querySelectorAll('.chip.on');
+  
+  if (el.classList.contains('on')) {
+    el.classList.remove('on');
+  } else {
+    if (maxCount && selected.length >= maxCount) {
+      return;
+    }
+    el.classList.add('on');
+  }
+}
+
 function star(el) {
   el.parentElement.querySelectorAll('.star').forEach(s => s.classList.remove('on'));
   el.classList.add('on');
@@ -360,9 +564,10 @@ function getSelected(id) {
   const s = el.querySelector('.chip.on, .star.on');
   return s ? s.textContent : '';
 }
+
 function getMultiSelected(id) {
   const els = document.querySelectorAll('#' + id + ' .chip.on');
-  return Array.from(els).map(e => e.textContent).join('、');
+  return Array.from(els).map(e => e.textContent);
 }
 
 async function saveRecord() {
@@ -380,14 +585,18 @@ async function saveRecord() {
     name: name,
     time: time,
     date: now.toLocaleDateString('zh-TW'),
-    service: getSelected('f-service'),
-    type: getSelected('f-type'),
-    line: getSelected('f-line'),
+    clienttype: getMultiSelected('f-clienttype'),
+    service: getMultiSelected('f-service'),
+    line: getMultiSelected('f-line'),
     ops: getMultiSelected('f-ops'),
     moment: document.getElementById('f-moment').value.trim(),
     diff: getSelected('f-diff'),
+    extension: getMultiSelected('f-extension'),
+    conversion: document.getElementById('f-conversion').value.trim(),
     ret: getSelected('f-return'),
-    upgrade: getSelected('f-upgrade'),
+    upgrade: getMultiSelected('f-upgrade'),
+    followup: getMultiSelected('f-followup'),
+    followupdate: document.getElementById('f-followupdate').value,
     note: document.getElementById('f-note').value.trim()
   };
 
@@ -405,52 +614,73 @@ async function saveRecord() {
 function resetForm() {
   document.getElementById('f-name').value = '';
   document.getElementById('f-moment').value = '';
+  document.getElementById('f-conversion').value = '';
   document.getElementById('f-note').value = '';
+  document.getElementById('f-followupdate').value = '';
   document.getElementById('f-client').value = '';
-  document.querySelectorAll('.chip.on, .star.on').forEach(el => el.classList.remove('on'));
+  document.querySelectorAll('#quick-area .chip.on, #quick-area .star.on').forEach(el => el.classList.remove('on'));
   document.getElementById('f-name').focus();
+}
+
+async function submitFeedback() {
+  const clientId = document.getElementById('fb-client').value;
+  if (!clientId) { alert('請選擇個案編號'); return; }
+
+  const chips = document.querySelectorAll('#feedback-area .option-group .chip.on');
+  if (chips.length < 3) { alert('請填完所有必填項目'); return; }
+
+  const now = new Date();
+  const feedbackData = {
+    client_id: parseInt(clientId),
+    date: now.toLocaleDateString('zh-TW'),
+    improvement: chips[0].textContent,
+    return_intention: chips[1].textContent,
+    program_interest: chips[2].textContent,
+    rating: getSelected('fb-rating'),
+    notes: document.getElementById('fb-notes').value.trim()
+  };
+
+  try {
+    const { error } = await supabase.from('feedback').insert([feedbackData]);
+    if (error) throw error;
+    
+    document.getElementById('feedback-content').style.display = 'none';
+    document.getElementById('feedback-success').style.display = 'block';
+    loadData();
+  } catch (e) {
+    alert('提交失敗：' + e.message);
+  }
+}
+
+function resetFeedback() {
+  document.getElementById('feedback-content').style.display = 'block';
+  document.getElementById('feedback-success').style.display = 'none';
+  document.getElementById('fb-client').value = '';
+  document.querySelectorAll('#feedback-area .chip.on, #feedback-area .star.on').forEach(el => el.classList.remove('on'));
+  document.getElementById('fb-notes').value = '';
 }
 
 function exportRecords() {
   let out = '=== BodyFix 個案記錄 ===\n共 ' + records.length + ' 筆\n\n';
   records.forEach(r => {
     out += '──────\n【' + r.name + '】' + r.date + ' ' + r.time + '\n';
-    if (r.service) out += '服務：' + r.service + '\n';
-    if (r.type) out += '類型：' + r.type + '\n';
-    if (r.line) out += '主導：' + r.line + '\n';
-    if (r.ops) out += '操作：' + r.ops + '\n';
+    if (r.service && r.service.length) out += '服務：' + r.service.join('、') + '\n';
+    if (r.clienttype && r.clienttype.length) out += '客群：' + r.clienttype.join('、') + '\n';
+    if (r.line && r.line.length) out += '主導：' + r.line.join('、') + '\n';
+    if (r.ops && r.ops.length) out += '操作：' + r.ops.join('、') + '\n';
     if (r.moment) out += '有感：' + r.moment + '\n';
     if (r.diff) out += '差異：' + r.diff + '/5\n';
+    if (r.extension && r.extension.length) out += '延伸：' + r.extension.join('、') + '\n';
+    if (r.conversion) out += '轉換備註：' + r.conversion + '\n';
     if (r.ret) out += '回訪：' + r.ret + '/5\n';
-    if (r.upgrade) out += '升級：' + r.upgrade + '\n';
+    if (r.upgrade && r.upgrade.length) out += '升級：' + r.upgrade.join('、') + '\n';
+    if (r.followup && r.followup.length) out += '後續：' + r.followup.join('、') + '\n';
+    if (r.followupdate) out += '追蹤日期：' + r.followupdate + '\n';
     if (r.note) out += '備註：' + r.note + '\n';
   });
   navigator.clipboard.writeText(out).then(() => {
     alert('已複製 ' + records.length + ' 筆');
   });
-}
-
-function showQuick() {
-  document.getElementById('quick-area').classList.add('show');
-  document.getElementById('files-area').classList.remove('show');
-  document.getElementById('btn-save').style.display = 'flex';
-  document.getElementById('btn-export').style.display = 'flex';
-  document.getElementById('btn-add-client').style.display = 'none';
-  document.getElementById('top-title').textContent = 'BodyFix｜快速記錄';
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-btn')[0].classList.add('active');
-}
-
-function showFiles() {
-  document.getElementById('quick-area').classList.remove('show');
-  document.getElementById('files-area').classList.add('show');
-  document.getElementById('btn-save').style.display = 'none';
-  document.getElementById('btn-export').style.display = 'none';
-  document.getElementById('btn-add-client').style.display = 'flex';
-  document.getElementById('top-title').textContent = 'BodyFix｜個案檔案';
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-btn')[1].classList.add('active');
-  renderFilesList();
 }
 
 function renderFilesList() {
@@ -516,10 +746,6 @@ function showClientDetail(clientId) {
         <div style="font-size:11px; color:var(--text-muted);">主訴</div>
         <div style="font-size:14px; color:var(--text); margin-top:2px;">${c.complaint || '─'}</div>
       </div>
-      <div style="margin-bottom:8px;">
-        <div style="font-size:11px; color:var(--text-muted);">判讀</div>
-        <div style="font-size:14px; color:var(--text); margin-top:2px;">${c.line_type || '─'} | ${c.type || '─'}</div>
-      </div>
     </div>
   `;
 
@@ -529,12 +755,13 @@ function showClientDetail(clientId) {
       html += `
         <div style="background:var(--input-bg); padding:10px; border-radius:8px; margin-bottom:8px;">
           <div style="font-size:12px; color:var(--accent); font-weight:700; margin-bottom:4px;">第 ${idx + 1} 次｜${v.date} ${v.time}</div>
-          <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">
-            ${v.service ? '服務：' + v.service + '<br>' : ''}
-            ${v.line ? '主導：' + v.line + '<br>' : ''}
-            ${v.ops ? '操作：' + v.ops + '<br>' : ''}
+          <div style="font-size:11px; color:var(--text-muted); line-height:1.6;">
+            ${v.service && v.service.length ? '服務：' + v.service.join('、') + '<br>' : ''}
+            ${v.clienttype && v.clienttype.length ? '客群：' + v.clienttype.join('、') + '<br>' : ''}
+            ${v.line && v.line.length ? '主導：' + v.line.join('、') + '<br>' : ''}
             ${v.moment ? '有感：' + v.moment + '<br>' : ''}
             ${v.diff ? '差異：' + v.diff + '/5<br>' : ''}
+            ${v.extension && v.extension.length ? '延伸：' + v.extension.join('、') + '<br>' : ''}
             ${v.ret ? '回訪：' + v.ret + '/5' : ''}
           </div>
         </div>
@@ -543,7 +770,7 @@ function showClientDetail(clientId) {
     html += '</div>';
   }
 
-  html += '<div style="text-align:center; padding:20px; font-size:13px; color:var(--text-muted);"><button class="btn btn-secondary" onclick="showFiles()" style="width:100%;">返回</button></div>';
+  html += '<div style="text-align:center; padding:20px; font-size:13px; color:var(--text-muted);"><button class="btn btn-secondary" onclick="showTab(\'files\')" style="width:100%;">返回</button></div>';
 
   document.getElementById('files-list').innerHTML = html;
 }
@@ -551,8 +778,6 @@ function showClientDetail(clientId) {
 function showAddClient() {
   alert('新增個案功能（待開發）');
 }
-
-function updateUI() {}
 
 loadData();
 setInterval(loadData, 30000);
