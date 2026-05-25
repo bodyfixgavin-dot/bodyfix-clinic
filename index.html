@@ -754,6 +754,26 @@ footer {
 }
 
 /* ── MOBILE ── */
+.mobile-quick-links {
+  display: none;
+}
+@media (max-width: 900px) {
+  .mobile-quick-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 24px;
+  }
+  .mobile-quick-links a {
+    font-size: 12px;
+    padding: 8px 12px;
+    border: 1px solid rgba(196,149,106,0.35);
+    border-radius: 999px;
+    color: var(--gold);
+    background: rgba(255,255,255,0.35);
+  }
+}
+
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; gap: 40px; }
   .hero::before { display:none; }
@@ -813,6 +833,12 @@ footer {
       <a href="#booking" class="btn-primary">預約前先填問卷</a>
       <a href="#services" class="btn-ghost">了解服務</a>
     </div>
+    <div class="mobile-quick-links">
+      <a href="#body-reset">身體整理</a>
+      <a href="#movement">動作整合</a>
+      <a href="#zwtarot">紫微塔羅</a>
+      <a href="#booking">預約</a>
+    </div>
   </div>
   <div class="hero-right">
     <div class="hero-spec">
@@ -829,7 +855,7 @@ footer {
     </div>
     <div class="hero-spec">
       <span class="hero-spec-label">DURATION</span>
-      <span class="hero-spec-value">60 分鐘</span>
+      <span class="hero-spec-value">60 分鐘起</span>
     </div>
     <div class="hero-spec">
       <span class="hero-spec-label">EXPERIENCE</span>
@@ -896,7 +922,7 @@ footer {
 <section class="section section-dark">
   <div class="section-label" style="color:var(--gold)">METHODOLOGY</div>
   <h2 class="section-title">四個階段</h2>
-  <p class="section-sub">每次 60 分鐘，從判讀到整合，有清楚的脈絡。</p>
+  <p class="section-sub">從單次整理到完整計畫，都遵循判讀、整理、整合、接回的清楚脈絡。</p>
   <div class="method-grid">
     <div class="method-step">
       <div class="method-num">01</div>
@@ -908,7 +934,7 @@ footer {
       <div class="method-num">02</div>
       <div class="method-en">RESET</div>
       <div class="method-zh">整理</div>
-      <p class="method-desc">透過筋膜與張力整理，降低不必要的撐住與卡住，讓身體鬆出空間。</p>
+      <p class="method-desc">透過筋膜與張力整理，降低不必要的保護性張力，讓活動空間與身體協調重新回來。</p>
     </div>
     <div class="method-step">
       <div class="method-num">03</div>
@@ -933,19 +959,19 @@ footer {
   <div class="body-reset-layout">
     <div class="service-list">
       <div class="service-item">
-        <span class="service-item-name">60 分鐘筋膜鏈整理</span>
+        <span class="service-item-name">筋膜鏈整理 60 分鐘</span>
         <span class="service-item-price">NT$2,200</span>
       </div>
       <div class="service-item">
-        <span class="service-item-name">90 分鐘延長整理</span>
+        <span class="service-item-name">筋膜鏈延長整理 90 分鐘</span>
         <span class="service-item-price">NT$3,200</span>
       </div>
       <div class="service-item">
-        <span class="service-item-name">骨盆核心整理</span>
+        <span class="service-item-name">骨盆核心整理 60 分鐘</span>
         <span class="service-item-price">NT$2,800</span>
       </div>
       <div class="service-item">
-        <span class="service-item-name">骨盆核心延長整理</span>
+        <span class="service-item-name">骨盆核心延長整理 90 分鐘</span>
         <span class="service-item-price">NT$3,800</span>
       </div>
       <div class="service-item">
@@ -956,7 +982,7 @@ footer {
     <div class="highlight-box">
       <div class="label">12-SESSION PLAN</div>
       <h3>完整的系統整理，<br>不是一次性放鬆</h3>
-      <p>12 次結構整合計畫，跨越六條主要筋膜線，從代償清理到動作整合，建立屬於你的身體使用地圖。</p>
+      <p>12 次結構整合計畫，從筋膜鏈、呼吸、骨盆、肩帶、旋轉與動作整合切入，建立屬於你的身體使用地圖。</p>
       <a href="#booking" class="btn-primary" style="display:inline-flex;">了解 12 次計畫</a>
     </div>
   </div>
@@ -1027,7 +1053,7 @@ footer {
 <section class="ig-works">
   <div class="section-label">INSTAGRAM WORKS</div>
   <h2 class="section-title">IG 作品與內容展示</h2>
-  <p class="section-sub" style="margin-bottom:0">筋膜知識、案例整理、骨盆核心、紫微塔羅。跟著帳號走，你會慢慢看懂身體的語言。</p>
+  <p class="section-sub" style="margin-bottom:0">在 IG 裡持續更新身體整理案例、筋膜知識、紫微塔羅與城市場次，讓你用更輕鬆的方式理解 BodyFix 的方法。</p>
 
   <div class="ig-categories">
     <div class="ig-cat-card">
@@ -1066,19 +1092,19 @@ footer {
   <div class="ig-embeds-grid">
     <div class="ig-embed-placeholder">
       <div class="icon">📸</div>
-      <div class="text">這裡可嵌入 IG 貼文<br>之後替換成單篇貼文網址</div>
+      <div class="text">案例整理貼文<br>之後可替換為 IG 嵌入貼文</div>
     </div>
     <div class="ig-embed-placeholder">
       <div class="icon">📸</div>
-      <div class="text">這裡可嵌入 IG 貼文<br>之後替換成單篇貼文網址</div>
+      <div class="text">筋膜知識貼文<br>之後可替換為 IG 嵌入貼文</div>
     </div>
     <div class="ig-embed-placeholder">
       <div class="icon">📸</div>
-      <div class="text">這裡可嵌入 IG 貼文<br>之後替換成單篇貼文網址</div>
+      <div class="text">塔羅牌陣貼文<br>之後可替換為 IG 嵌入貼文</div>
     </div>
     <div class="ig-embed-placeholder">
       <div class="icon">📸</div>
-      <div class="text">這裡可嵌入 IG 貼文<br>之後替換成單篇貼文網址</div>
+      <div class="text">城市場次貼文<br>之後可替換為 IG 嵌入貼文</div>
     </div>
   </div>
 
