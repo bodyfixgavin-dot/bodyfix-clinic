@@ -93,6 +93,11 @@
     const tbodyEl = document.getElementById('tbody');
     const mobileCardsEl = document.getElementById('mobileCards');
     const reloadBtn = document.getElementById('reloadBtn');
+    const ZONE_LABELS = {
+      ximen: '西門',
+      sun_yat_sen_memorial_hall: '國父紀念館',
+      home_visit: '到府整理'
+    };
 
     function pick(row, keys, fallback = '') {
       for (const key of keys) {
@@ -120,6 +125,10 @@
     function formatMoney(amount) {
       if (!amount) return '—';
       return `NT$${amount.toLocaleString('en-US')}`;
+    }
+
+    function formatZoneName(zone) {
+      return ZONE_LABELS[zone] || zone;
     }
 
     function normalizeRow(row) {
@@ -163,7 +172,7 @@
 
     function rowHtml(row) {
       return `<tr>
-        <td>${row.zone}</td>
+        <td>${formatZoneName(row.zone)}</td>
         <td class="num">${row.total}</td>
         <td class="num">${row.distanceBarrier}</td>
         <td class="num">${row.highIntent}</td>
@@ -184,7 +193,7 @@
 
     function cardHtml(row) {
       return `<article class="zone-card">
-        <h2 class="zone-title">${row.zone}</h2>
+        <h2 class="zone-title">${formatZoneName(row.zone)}</h2>
 
         <section class="card-section">
           <h3 class="card-heading">需求統計</h3>
