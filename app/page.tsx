@@ -74,7 +74,7 @@ export default function HomePage() {
             <span>BF</span>
             <strong>BODYFIX OS</strong>
           </Link>
-          <Link className="portal-admin-link" href="/admin">Admin</Link>
+          <Link className="portal-admin-link" href="/admin-console?entry=admin" aria-label="開啟 BodyFix OS restricted admin interface">ADMIN</Link>
         </nav>
 
         <section className="portal-hero" aria-labelledby="portal-title">
@@ -136,7 +136,7 @@ export default function HomePage() {
             <span>BodyFix OS</span>
             <p>服務從理解開始，系統讓每一次整理都能留下下一步。</p>
           </div>
-          <Link className="portal-system-noise-link" href="/internal-access?entry=footer">
+          <Link className="portal-system-noise-link" href="/admin-console?entry=footer" aria-label="開啟 BodyFix OS internal access interface">
             BodyFix OS v1.4.2 // INTERNAL_ACCESS →
           </Link>
         </footer>
