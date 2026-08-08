@@ -11,6 +11,7 @@ export async function GET() {
   }
 
   const now = new Date().toISOString();
+  try {
   const [{ data: slots, error: slotError }, { data: services, error: serviceError }] = await Promise.all([
     supabase
       .from("public_available_slots")
@@ -36,4 +37,8 @@ export async function GET() {
   }
 
   return NextResponse.json({ slots: slots ?? [], services: services ?? [] });
+  } catch (error) {
+    console.error("Booking public Supabase request failed", error);
+    return NextResponse.json({ error: "Unable to reach booking database" }, { status: 503 });
+  }
 }

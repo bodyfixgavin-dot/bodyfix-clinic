@@ -323,8 +323,16 @@ export default function AdminPage() {
                     LINE：{booking.line_id}<br />
                     {booking.phone || ""}
                   </td>
-                  <td>{booking.services?.display_name_zh || booking.services?.name || booking.service_id}</td>
-                  <td>{booking.body_notes}<br />{booking.message}</td>
+                  <td>
+                    {booking.service_name || booking.services?.display_name_zh || booking.services?.name || booking.service_id}
+                    {booking.selected_fascia_line_name && <><br />指定：{booking.selected_fascia_line_name}</>}
+                    {booking.source && <><br />來源：{booking.source}{booking.quiz_result_type ? `（${booking.quiz_result_type}）` : ""}</>}
+                  </td>
+                  <td>
+                    {booking.body_notes}<br />{booking.message}
+                    {booking.preferred_date && <><br />偏好：{booking.preferred_date}／{booking.preferred_time_range}</>}
+                    {booking.accept_last_minute_slot && <><br />臨時空檔：{booking.accept_last_minute_slot}</>}
+                  </td>
                   <td>
                     <div className="bf-admin-actions">
                       <button className="bf-small-btn" type="button" onClick={() => updateBookingStatus(booking.id, "confirmed")}>確認</button>

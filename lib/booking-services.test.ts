@@ -32,9 +32,9 @@ describe("public booking services", () => {
       "sfl",
       "ll",
       "sl",
+      "dfl",
       "al",
       "fl",
-      "dfl",
       "unknown",
     ]);
   });
