@@ -97,6 +97,11 @@ export const FASCIA_LINE_OPTIONS = [
     description: "常見於旋轉受限、核心代償、動作左右不對稱。",
   },
   {
+    code: "dfl",
+    name: "深層核心線｜深前線 DFL",
+    description: "常見於核心無力、骨盆前傾、腰椎壓力大、呼吸卡住。",
+  },
+  {
     code: "al",
     name: "肩頸手臂線｜手臂線 AL",
     description: "常見於肩頸緊繃、手臂痠麻、上肢張力高。",
@@ -105,11 +110,6 @@ export const FASCIA_LINE_OPTIONS = [
     code: "fl",
     name: "動作連動線｜功能線 FL",
     description: "常見於動作卡卡、發力不順、運動表現受限。",
-  },
-  {
-    code: "dfl",
-    name: "深層核心線｜深前線 DFL",
-    description: "常見於核心無力、骨盆前傾、腰椎壓力大、呼吸卡住。",
   },
   {
     code: "unknown",

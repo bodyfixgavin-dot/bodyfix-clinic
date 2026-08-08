@@ -52,10 +52,12 @@ export default function BookingPage() {
       lastMinuteOptions[0],
     );
   const [source, setSource] = useState("booking"),
+    [quizResultType, setQuizResultType] = useState<string | null>(null),
     [loading, setLoading] = useState(false),
     [loadingData, setLoadingData] = useState(true),
     [message, setMessage] = useState(""),
-    [success, setSuccess] = useState(false);
+    [success, setSuccess] = useState(false),
+    [bookingId, setBookingId] = useState("");
   const selectedService = useMemo(
     () => services.find((s) => s.id === serviceId) || services[0],
     [services, serviceId],
@@ -89,6 +91,7 @@ export default function BookingPage() {
       const params = new URLSearchParams(window.location.search);
       const requested = params.get("service");
       setSource(params.get("source") || "booking");
+      setQuizResultType(params.get("quizResultType"));
       setServices(next);
       setServiceId(next.find((s) => s.code === requested)?.id || next[0].id);
       setLoadingData(false);
@@ -115,12 +118,14 @@ export default function BookingPage() {
           selectedFasciaLineName: selectedFasciaLine.name,
         }
       : {};
+    try {
     if (noPublicSlots) {
       const payload = {
         serviceCode: selectedService.code,
+        serviceId: selectedService.id.startsWith("fallback-") ? null : selectedService.id,
         serviceName: selectedService.display_name_zh || selectedService.name,
         ...fasciaLineFields,
-        name: name.trim(),
+        clientName: name.trim(),
         lineId: lineId.trim(),
         phone: phone.trim() || null,
         bodyCondition: bodyCondition.trim(),
@@ -129,21 +134,17 @@ export default function BookingPage() {
         acceptLastMinuteSlot,
         note: note.trim(),
         source,
-        createdAt: new Date().toISOString(),
+        quizResultType,
       };
-      try {
-        const saved = JSON.parse(
-          localStorage.getItem("bodyfixBookingWaitlist") || "[]",
-        );
-        localStorage.setItem(
-          "bodyfixBookingWaitlist",
-          JSON.stringify([...saved, payload]),
-        );
-        setSuccess(true);
-      } catch (error) {
-        console.error("Unable to save booking waitlist", error);
-        setMessage("暫時無法儲存卡位資料，請改用 LINE 聯絡 Gavin。");
-      }
+      const res = await fetch("/api/booking/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.success || !data.bookingId) throw new Error(data?.error || "Waitlist submission failed");
+      setBookingId(data.bookingId);
+      setSuccess(true);
     } else {
       const res = await fetch("/api/booking/hold", {
         method: "POST",
@@ -157,10 +158,21 @@ export default function BookingPage() {
           phone: phone.trim() || null,
           body_notes: bodyCondition.trim() || null,
           message: note.trim() || null,
+          serviceCode: selectedService.code,
+          serviceName: selectedService.display_name_zh || selectedService.name,
+          source,
+          quizResultType,
         }),
       });
-      if (res.ok) setSuccess(true);
-      else setMessage("此時段暫時無法保留，請重新選擇或透過 LINE 聯絡 Gavin。");
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.success || !data.booking_id) throw new Error(data?.error || data?.message || "Slot hold failed");
+      setBookingId(data.booking_id);
+      setSuccess(true);
+    }
+    } catch (error) {
+      console.error("Booking submission failed", error);
+      setSuccess(false);
+      setMessage("資料尚未送出，請保留本頁內容後重新送出，或透過 LINE 聯絡 Gavin。");
     }
     setLoading(false);
   }
@@ -169,10 +181,8 @@ export default function BookingPage() {
       <main className="bf-container">
         <section className="bf-card bf-success">
           <h1>已收到你的卡位資料</h1>
-          <p>
-            系統已先記下你的服務項目、偏好時段與身體狀況。正式預約仍以 LINE
-            確認為準。
-          </p>
+          <p>卡位資料已寫入 BodyFix 預約系統，正式預約仍以 LINE 確認為準。</p>
+          {bookingId && <p>紀錄編號：<strong>{bookingId}</strong></p>}
           <div className="bf-actions">
             <Link className="bf-primary" href="/">
               回到 BodyFix OS

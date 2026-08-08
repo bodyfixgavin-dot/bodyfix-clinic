@@ -1,7 +1,7 @@
 export type BookingCity = "taipei" | "taichung" | "kaohsiung";
 export type SlotType = "normal" | "late_night" | "last_minute" | "vip_hold";
 export type SlotStatus = "available" | "closed";
-export type BookingStatus = "held" | "confirmed" | "cancelled" | "completed" | "expired";
+export type BookingStatus = "pending_confirmation" | "held" | "confirmed" | "cancelled" | "completed" | "expired";
 export type ServiceStatus = "active" | "limited" | "coming_soon" | "archived" | "draft";
 
 export type BookingService = {
@@ -41,7 +41,7 @@ export type AvailabilitySlot = {
 
 export type BookingRequest = {
   id: string;
-  slot_id: string;
+  slot_id: string | null;
   service_id: string;
   client_name: string;
   line_id: string;
@@ -51,6 +51,15 @@ export type BookingRequest = {
   status: BookingStatus;
   hold_expires_at: string | null;
   created_at: string;
+  source?: string | null;
+  service_code?: string | null;
+  service_name?: string | null;
+  selected_fascia_line_code?: string | null;
+  selected_fascia_line_name?: string | null;
+  preferred_date?: string | null;
+  preferred_time_range?: string | null;
+  accept_last_minute_slot?: string | null;
+  quiz_result_type?: string | null;
   availability_slots?: AvailabilitySlot | null;
   services?: BookingService | null;
 };

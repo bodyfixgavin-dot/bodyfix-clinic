@@ -114,6 +114,20 @@ create table if not exists booking_requests (
   updated_at timestamptz not null default now()
 );
 
+-- Waitlist requests share the existing booking pipeline so they are visible in
+-- BodyFix Admin. A null slot means Gavin still needs to arrange the time.
+alter type booking_status add value if not exists 'pending_confirmation' before 'held';
+alter table booking_requests alter column slot_id drop not null;
+alter table booking_requests add column if not exists source text not null default 'booking';
+alter table booking_requests add column if not exists service_code text;
+alter table booking_requests add column if not exists service_name text;
+alter table booking_requests add column if not exists selected_fascia_line_code text;
+alter table booking_requests add column if not exists selected_fascia_line_name text;
+alter table booking_requests add column if not exists preferred_date text;
+alter table booking_requests add column if not exists preferred_time_range text;
+alter table booking_requests add column if not exists accept_last_minute_slot text;
+alter table booking_requests add column if not exists quiz_result_type text;
+
 create unique index if not exists unique_active_booking_per_slot
 on booking_requests(slot_id)
 where status in ('held', 'confirmed');
