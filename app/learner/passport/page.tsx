@@ -1,14 +1,20 @@
+import Link from "next/link";
 import { BoundaryNotice, LearnerHero, LearnerShell } from "@/components/learner/LearnerShell";
-import { capabilityNodes } from "@/lib/learner/data";
 
-const statuses = [
-  ["未探索", "尚未接觸，不代表不具備。"],
-  ["觀察中", "已建立初步閱讀紀錄，但證據仍不足。"],
-  ["引導實作", "目前僅適合在導師對讀或明確框架下進行。"],
-  ["已驗證", "已有足夠的多元實作證據，納入目前安全實作範圍。"],
-  ["界外區域", "尚未驗證，或不屬於 BodyFix 可執行與授權範圍。"],
+const stages = [
+  ["建立觀察", "能開始辨認姿勢、動作、呼吸與張力之間的關係。"],
+  ["引導實作", "能在明確流程與指導下，進行基礎整理與回測。"],
+  ["整合應用", "開始根據不同案例調整順序，並把整理結果重新接回動作。"],
+  ["建立邊界", "能辨認自己的能力範圍，知道什麼可以處理，什麼應停止、轉介或尋求其他專業協助。"],
 ];
 
 export default function PassportPage() {
-  return <LearnerShell><LearnerHero eyebrow="BODYFIX READING CONSTELLATION" title="BodyFix 讀體星圖"><p className="learner-lead">已驗證能力、實作證據與當前安全邊界。</p><BoundaryNotice>Demo 資料 · 尚未接入資料，不顯示虛構認證、授權或完成狀態。</BoundaryNotice></LearnerHero><section className="passport-layout"><div className="ring-card"><svg viewBox="0 0 320 320" role="img" aria-label="守界環"><circle cx="160" cy="160" r="62"/><circle cx="160" cy="160" r="108"/><circle cx="160" cy="160" r="146"/><text x="160" y="154">環內：證據支持</text><text x="160" y="178">環上：引導監督</text><text x="160" y="34">環外：尚未驗證</text></svg></div><div className="learner-stack">{statuses.map(([title, text]) => <article className="status-row" key={title}><h2>{title}</h2><p>{text}</p></article>)}</div></section><section className="learner-grid">{capabilityNodes.map((node) => <article className="learner-card" key={node.name}><span>{node.status}</span><h2>{node.name}</h2><p>{node.note}</p></article>)}</section></LearnerShell>;
+  return <LearnerShell>
+    <LearnerHero eyebrow="BODYFIX LEARNING PATH" title="從看懂，到真正會用">
+      <p className="learner-lead">學習 BodyFix，不以「看完課程」作為終點。<br />真正重要的是能不能觀察、能不能安全實作，以及知不知道自己的能力邊界。</p>
+      <BoundaryNotice><strong>Demo 資料</strong><br />目前為能力路徑示意，尚未代表任何人的認證、授權或完成狀態。</BoundaryNotice>
+    </LearnerHero>
+    <section className="content-section"><p className="section-number">LEARNING PATH · 能力框架</p><div className="learning-path-grid">{stages.map(([title, text], index) => <article key={title}><span>{String(index + 1).padStart(2, "0")}</span><div><h2>{title}</h2><p>{text}</p></div></article>)}</div></section>
+    <section className="final-cta"><h2>先理解方法，再選擇下一步</h2><p>查看完整學習內容，了解 BodyFix 如何從判讀、整理走到重新使用。</p><Link className="learner-button" href="/learner/atlas">了解學習內容 <span aria-hidden="true">→</span></Link></section>
+  </LearnerShell>;
 }
