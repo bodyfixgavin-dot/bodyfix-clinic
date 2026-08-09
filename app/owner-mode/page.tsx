@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export const metadata: Metadata = {
@@ -79,6 +80,9 @@ export default function OwnerModePage() {
         </section>
 
         <footer className={styles.ownerModeFooter} aria-label="Quiet next steps">
+          <Link className={styles.ownerModeStaticEntry} href="/owner-mode/strategic-decisions">
+            Strategic Decisions
+          </Link>
           {quietEntries.map((entry) => (
             <span className={styles.ownerModeStaticEntry} key={entry}>
               {entry}
