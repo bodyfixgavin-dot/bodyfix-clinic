@@ -1,14 +1,6 @@
-import type { Metadata } from "next";
-import InternalAccessClient from "./InternalAccessClient";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Restricted Interface",
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
-
-export default function InternalAccessPage() {
-  return <InternalAccessClient />;
+export default async function LegacyInternalAccessPage({ searchParams }: { searchParams: Promise<{ entry?: string }> }) {
+  const { entry } = await searchParams;
+  redirect(`/admin-console${entry ? `?entry=${encodeURIComponent(entry)}` : ""}`);
 }

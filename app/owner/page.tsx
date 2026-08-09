@@ -7,14 +7,14 @@ const ownerFlow = [
   ["TOOLS", "之後怎麼判讀？你用什麼工具整理狀態、回訪、追蹤與升級服務？"],
 ];
 
-export default function OwnerPage() {
+export default function BuilderOverviewPage() {
   return (
     <main className="portal-page portal-detail-page portal-owner-page">
       <div className="portal-detail-shell">
         <Link className="portal-back-link" href="/">← 返回 BodyFix OS</Link>
         <header className="portal-detail-hero">
-          <p className="portal-kicker">Owner Mode</p>
-          <h1>BodyFix Owner Mode</h1>
+          <p className="portal-kicker">Builder Mode</p>
+          <h1>BodyFix Builder Mode</h1>
           <p className="portal-detail-lead">想當老闆，先看懂一套服務怎麼成立。</p>
           <div className="portal-owner-note">
             <strong>你點進來了。</strong>
@@ -37,7 +37,7 @@ export default function OwnerPage() {
         </section>
 
         <section className="portal-detail-closing">
-          <p>Owner Mode 目前開發中。</p>
+          <p>Builder Mode 目前開發中。</p>
           <h2>如果你對 BodyFix 方法、課程、合作、駐點或未來授權有興趣，可以先透過官方 LINE 或 Instagram 聯絡。</h2>
         </section>
       </div>

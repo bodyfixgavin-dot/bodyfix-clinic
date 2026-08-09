@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import ConsoleEasterEgg from "./ConsoleEasterEgg";
 
 export const metadata: Metadata = {
   title: { default: "BodyFix OS｜身體服務作業系統", template: "%s｜BodyFix OS" },
@@ -19,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-Hant">
-      <body>{children}</body>
+      <body><ConsoleEasterEgg />{children}</body>
     </html>
   );
 }

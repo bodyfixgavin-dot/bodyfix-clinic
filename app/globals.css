@@ -3147,8 +3147,8 @@ main {
 .portal-footer p { margin: 6px 0 0; }
 .portal-system-noise-link {
   flex: 0 0 auto;
-  color: rgba(20, 34, 52, .45);
-  font: 700 10px/1.4 var(--font-tasa-orbiter), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: rgba(20, 34, 52, .52);
+  font: 600 9px/1.4 var(--font-tasa-orbiter), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   letter-spacing: .08em;
   text-decoration: none;
   transition: color .2s ease;
