@@ -139,6 +139,11 @@
   padding: 22px 0;
 }
 
+a.ownerModeStaticEntry {
+  color: #ddc9a6;
+  text-decoration: none;
+}
+
 @media (max-width: 860px) {
   .ownerModeHero,
   .ownerModeGrid {
@@ -158,4 +163,3 @@
     grid-template-columns: 1fr;
   }
 }
-
