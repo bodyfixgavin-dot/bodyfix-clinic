@@ -63,7 +63,7 @@ export default function InternalAccessClient() {
               <p>密鑰確實不對。</p>
               <p>但你已經試了第二次。</p>
               <p>多數人不會走到這裡。</p>
-              <Link className={styles.systemAccessRevealLink} href="/owner-mode?entry=retry">
+              <Link className={styles.systemAccessRevealLink} href="/builder-mode?entry=retry">
                 推開這面牆，看看服務背後的結構 →
               </Link>
             </div>
