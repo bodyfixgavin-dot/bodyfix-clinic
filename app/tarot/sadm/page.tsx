@@ -1,321 +1,112 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./SadmPage.module.css";
 
-type ElementKey = "emv" | "lv" | "av" | "cc" | "tc" | "oc" | "sc";
+type Metric = "PR" | "BC" | "GL" | "NA" | "UA" | "TC" | "SC" | "CC" | "AV" | "EMV";
+type Question = { name: string; hookTitle: string; answerStatement: string; microCopy: string; metrics: Metric[] };
 
-type SadmElement = {
-  key: ElementKey;
-  label: string;
-  group: "value" | "cost";
-  title: string;
-  question: string;
-  lowLabel: string;
-  highLabel: string;
-};
-
-const sadmElements: SadmElement[] = [
-  {
-    key: "emv",
-    label: "EMV",
-    group: "value",
-    title: "情感收益",
-    question: "這段關係讓我感到被愛、被理解嗎？",
-    lowLabel: "很少被接住",
-    highLabel: "很常被滋養"
-  },
-  {
-    key: "lv",
-    label: "LV",
-    group: "value",
-    title: "生活價值",
-    question: "這段關係讓我的生活更穩，還是更亂？",
-    lowLabel: "生活更混亂",
-    highLabel: "生活更穩定"
-  },
-  {
-    key: "av",
-    label: "AV",
-    group: "value",
-    title: "吸引力價值",
-    question: "我是真喜歡，還是被刺激感綁住？",
-    lowLabel: "只是被拉扯",
-    highLabel: "真實被吸引"
-  },
-  {
-    key: "cc",
-    label: "CC",
-    group: "cost",
-    title: "溝通成本",
-    question: "我需要花多少力氣解釋、討好、修復？",
-    lowLabel: "幾乎不費力",
-    highLabel: "非常耗力"
-  },
-  {
-    key: "tc",
-    label: "TC",
-    group: "cost",
-    title: "時間成本",
-    question: "我花多少時間等待、猜測、反覆確認？",
-    lowLabel: "很少等待猜測",
-    highLabel: "大量被佔據"
-  },
-  {
-    key: "oc",
-    label: "OC",
-    group: "cost",
-    title: "機會成本",
-    question: "我因此錯過了哪些更好的可能？",
-    lowLabel: "幾乎沒錯過",
-    highLabel: "錯過很多可能"
-  },
-  {
-    key: "sc",
-    label: "SC",
-    group: "cost",
-    title: "自我成本",
-    question: "這段關係對我的自尊與情緒健康造成多少消耗？",
-    lowLabel: "仍保有自己",
-    highLabel: "嚴重自我懷疑"
-  }
+const questions: Question[] = [
+  { name: "忽冷忽熱卡", hookTitle: "他有時很熱，有時又像消失？", answerStatement: "他的忽冷忽熱，常常讓我忍不住一直猜他到底在想什麼。", microCopy: "不穩定的溫柔，最容易讓人誤以為是心動。", metrics: ["UA"] },
+  { name: "關係霧區卡", hookTitle: "你們一直卡在「不知道算什麼」？", answerStatement: "我們之間有曖昧、有親密、有期待，但關係定位一直很模糊。", microCopy: "模糊不是浪漫，模糊有時是讓你繼續等的空間。", metrics: ["PR"] },
+  { name: "麵包屑回溫卡", hookTitle: "他是不是每次你快放下時，又剛好出現？", answerStatement: "每次我快要放下，他就會突然變溫柔、突然關心，讓我又捨不得走。", microCopy: "麵包屑不是愛，是剛好不讓你走的訊號。", metrics: ["BC"] },
+  { name: "未來支票卡", hookTitle: "他講過很多以後，但很少真的做到？", answerStatement: "他說過很多之後、有一天、等我忙完，但真正落地的行動很少。", microCopy: "承諾如果沒有行動，就只是讓你繼續等的劇本。", metrics: ["PR"] },
+  { name: "自我懷疑卡", hookTitle: "你常常懷疑自己是不是太敏感？", answerStatement: "我明明感覺不舒服，卻常常被他說到懷疑是不是自己太敏感、太愛想。", microCopy: "當你開始不相信自己的感覺，這段互動就已經影響你了。", metrics: ["GL"] },
+  { name: "反向道歉卡", hookTitle: "你提出需求後，最後反而變成你在道歉？", answerStatement: "我本來只是想說出不安或需求，但聊到最後，常常變成我在解釋、安撫，甚至道歉。", microCopy: "健康的溝通，不會讓提出需求的人變成罪人。", metrics: ["CC", "GL"] },
+  { name: "情緒急救站卡", hookTitle: "他情緒不好時，你會覺得自己有責任讓他好起來？", answerStatement: "只要他低落、崩潰或脆弱，我就會自動進入照顧模式，覺得自己不能離開。", microCopy: "你可以關心他，但你不是他的情緒急救站。", metrics: ["NA"] },
+  { name: "例外感上癮卡", hookTitle: "你享受他只對你示弱的感覺？", answerStatement: "當他說只有我懂他、只會跟我講這些時，我會覺得自己很特別、很重要。", microCopy: "被當成例外很迷人，但不等於被真正選擇。", metrics: ["NA"] },
+  { name: "等訊息耗損卡", hookTitle: "你常常等他的訊息等到生活亂掉？", answerStatement: "我會一直看手機、猜他為什麼沒回，也會因為他的訊息影響整天心情。", microCopy: "如果你的一天被他的訊息控制，那成本已經開始變高。", metrics: ["TC"] },
+  { name: "自我流失卡", hookTitle: "這段關係讓你越來越不像自己？", answerStatement: "在這段關係裡，我變得更焦慮、更小心、更常自責，也越來越不敢直接表達自己。", microCopy: "一段關係最貴的成本，是你慢慢失去自己。", metrics: ["SC"] },
+  { name: "被珍惜確認卡", hookTitle: "跟他互動後，你有感覺被珍惜嗎？", answerStatement: "跟他互動後，我真的有感覺自己被尊重、被在乎、被好好對待。", microCopy: "真正的喜歡，不只讓你心跳，也會讓你感到安定。", metrics: ["EMV"] },
+  { name: "刺激綁架卡", hookTitle: "你是真的喜歡他，還是被刺激感綁住？", answerStatement: "我放不下的，更多是那種忽冷忽熱、時好時壞、讓我一直想確認的刺激感。", microCopy: "有些心動，不是愛變深，而是不確定性變高。", metrics: ["AV"] }
 ];
 
-const initialScores: Record<ElementKey, number> = {
-  emv: 6,
-  lv: 5,
-  av: 7,
-  cc: 5,
-  tc: 6,
-  oc: 4,
-  sc: 6
+const options = ["完全不像", "有一點像", "很像", "根本就是我"];
+const metricNames: Record<Metric, string> = { PR: "關係模糊與高風險訊號", BC: "麵包屑與回溫牽引", GL: "自我懷疑與感受被否定", NA: "被需要感與照顧者模式", UA: "不確定性與忽冷忽熱牽引", TC: "等待與時間消耗", SC: "自我流失與情緒消耗", CC: "溝通壓力與反覆解釋", AV: "刺激感與吸引力陷阱", EMV: "被珍惜與情感收益" };
+
+const reports = {
+  stable: { title: "穩定滋養型", translation: "你在這段關係裡，不只是心動，也有被穩定對待。", insight: "你不需要一直猜，也不需要一直證明自己值得被愛。這段互動目前比較能讓你感到安心、被尊重，也比較不會讓你失去自己。", action: "保持觀察，也保持自己的生活節奏。穩定的關係不需要讓你失去自己。" },
+  repair: { title: "可修正低谷型", translation: "這段關係有壓力，但還不一定是死巷。", insight: "目前的問題不一定代表完全沒救，但需要看見具體行動，而不是只聽承諾。真正的重點是，接下來有沒有穩定、具體、可持續的改善。", action: "設定 14 到 30 天觀察期，只看行動，不看情緒承諾。" },
+  cost: { title: "高消耗牽引型", translation: "你不是沒有感覺，而是這段關係讓你付出的成本已經偏高。", insight: "你可能一直在想，再努力一點是不是就會變好。但如果一段關係長期讓你等、猜、自責、生活變亂，那就不是單純的愛，而是消耗正在變高。", action: "先降低投入，不要再用更多消耗證明自己值得被愛。" },
+  uncertainty: { title: "不確定性上癮型", translation: "你放不下的，可能不是愛本身，而是下一次回溫的期待。", insight: "有時很甜，有時消失；有時靠近，有時又讓你猜。這種不穩定會讓大腦一直等待下一次獎賞，久了就容易把焦慮誤認成心動。", action: "接下來 7 天，先停止解碼每一則訊息，只觀察對方是否有穩定行動。" },
+  needed: { title: "被需要上癮型", translation: "你可能把「被需要」誤認成「被愛」。", insight: "你很會照顧人，也很容易因為自己對他很重要，就忽略自己其實也需要被照顧。被需要很迷人，但如果只有你在承接他，這段關係就會慢慢失衡。", action: "問自己一句：這段關係有沒有也照顧到我？" },
+  gaslight: { title: "煤氣燈覺察型", translation: "你可能正在慢慢失去對自己感受的信任。", insight: "當你每次提出不安，最後都變成你在懷疑自己，這段互動就已經開始影響你的判斷。你不是一定太敏感，你可能只是太常被否定。", action: "先把事實寫下來，不要只靠當下情緒判斷。你需要的是重新相信自己的感覺。" },
+  warning: { title: "海王雷達高警示型", translation: "這段互動出現明顯高風險訊號。", insight: "對方不一定是故意傷害你，但目前的模式可能正在讓你一直猜、一直等、一直消耗。這不是要你立刻判他有罪，而是提醒你先保護自己的時間、情緒和自我價值。", action: "先停止加碼投入，觀察對方是否有穩定、具體、可持續的行動。" }
 };
 
-function getResult(svs: number) {
-  if (svs >= 1.5) {
-    return {
-      tone: "continue",
-      title: "回報明顯高於成本，可以繼續投入",
-      short: "這段關係目前給你的滋養與價值明顯高於你付出的成本。",
-      action: "可以繼續投入，但不要只看感覺，也要持續觀察對方是否用穩定行動承擔關係。"
-    };
-  }
-
-  if (svs >= 1.0) {
-    return {
-      tone: "adjust",
-      title: "略高於成本，建議修正互動方式",
-      short: "這段關係仍有價值，但成本已經開始靠近你得到的回報。",
-      action: "先不要盲目加碼，建議把需求說清楚、設定觀察期，看看互動方式能不能被一起修正。"
-    };
-  }
-
-  if (svs >= 0.7) {
-    return {
-      tone: "limit",
-      title: "成本偏高，降低投入並設定停損",
-      short: "這段關係目前不是完全沒有價值，但你付出的成本已經接近，甚至開始超過你得到的回報。",
-      action: "最重要的不是立刻做結論，而是先降低投入，觀察對方是否也願意一起承擔關係成本。"
-    };
-  }
-
-  return {
-    tone: "pause",
-    title: "高消耗低回報，建議暫停或離場",
-    short: "這段關係正在用很高的成本換取很低的回報。你可能還喜歡他，但你也正在被等待、猜測、修復與自我懷疑消耗。",
-    action: "先暫停投入，把時間、注意力與生活支撐收回來。不要再用更多成本證明自己值得被愛。"
-  };
-}
-
 export default function SadmTarotPage() {
-  const [subject, setSubject] = useState("某個放不下的人");
-  const [scores, setScores] = useState<Record<ElementKey, number>>(initialScores);
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState<(number | undefined)[]>(Array(12));
+  const [phase, setPhase] = useState<"quiz" | "activation" | "result">("quiz");
+  const cardRef = useRef<HTMLElement>(null);
 
-  const valueScore = scores.emv + scores.lv + scores.av;
-  const costScore = scores.cc + scores.tc + scores.oc + scores.sc;
-  const svs = useMemo(() => valueScore / Math.max(costScore, 1), [valueScore, costScore]);
-  const result = getResult(svs);
+  const scores = useMemo(() => {
+    const totals = Object.fromEntries(Object.keys(metricNames).map((key) => [key, 0])) as Record<Metric, number>;
+    const counts = { ...totals };
+    questions.forEach((question, index) => question.metrics.forEach((metric) => { totals[metric] += answers[index] ?? 0; counts[metric] += 1; }));
+    return Object.fromEntries(Object.keys(totals).map((key) => [key, totals[key as Metric] / Math.max(counts[key as Metric], 1)])) as Record<Metric, number>;
+  }, [answers]);
 
-  function updateScore(key: ElementKey, value: string) {
-    setScores((current) => ({ ...current, [key]: Number(value) }));
+  const report = useMemo(() => {
+    const riskMetrics: Metric[] = ["PR", "BC", "GL", "NA", "UA", "TC", "SC", "CC", "AV"];
+    const riskAverage = riskMetrics.reduce((sum, key) => sum + scores[key], 0) / riskMetrics.length;
+    const emotionalGap = 3 - scores.EMV;
+    if (scores.PR >= 2.5 && riskAverage >= 2) return reports.warning;
+    if (scores.GL >= 2.25 || scores.CC >= 2.75) return reports.gaslight;
+    if (scores.NA >= 2.25) return reports.needed;
+    if ((scores.UA + scores.BC + scores.AV) / 3 >= 2) return reports.uncertainty;
+    if (riskAverage >= 1.8 || scores.SC >= 2.25 || scores.TC >= 2.25) return reports.cost;
+    if (scores.EMV >= 2.2 && riskAverage < 1.2) return reports.stable;
+    if (emotionalGap <= 1.25 && riskAverage < 1.7) return reports.stable;
+    return reports.repair;
+  }, [scores]);
+
+  const topMetrics = useMemo(() => (Object.keys(scores) as Metric[]).sort((a, b) => {
+    const aRisk = a === "EMV" ? 3 - scores[a] : scores[a];
+    const bRisk = b === "EMV" ? 3 - scores[b] : scores[b];
+    return bRisk - aRisk;
+  }).slice(0, 3), [scores]);
+
+  useEffect(() => { if (phase !== "quiz" || step > 0) cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, [step, phase]);
+
+  function answer(value: number) {
+    setAnswers((current) => current.map((answer, index) => index === step ? value : answer));
+    window.setTimeout(() => step === questions.length - 1 ? setPhase("activation") : setStep((current) => current + 1), 180);
   }
 
-  return (
-    <main className={styles.pageShell}>
-      <nav className={styles.nav} aria-label="SADM 頁面導覽">
-        <Link className={styles.brand} href="/tarot/sadm" aria-label="BF Tarot SADM 首頁">
-          <span className={styles.brandMark}>BF</span>
-          <span>BF Tarot · SADM</span>
-        </Link>
-        <div className={styles.navLinks}>
-          <a href="#system">系統說明</a>
-          <a href="#elements">七個元素</a>
-          <a href="#test">開始測驗</a>
-        </div>
-      </nav>
+  function showResult() { setPhase("result"); window.requestAnimationFrame(() => cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })); }
+  const level = (value: number, metric: Metric) => { const normalized = metric === "EMV" ? value : value; return normalized < 1 ? "低" : normalized < 2 ? "中" : "高"; };
 
-      <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <p className={styles.eyebrow}>Relationship Decision Mapping System</p>
-          <h1>你不是放不下他，<br />你是還沒看清這段關係的成本。</h1>
-          <p className={styles.heroSubtitle}>
-            SADM 關係決策整理系統，透過 7 個關係元素、7 張塔羅牌與一個 SVS 分數，
-            幫你看見這段關係到底是滋養你，還是在消耗你。
-          </p>
-          <div className={styles.heroActions}>
-            <a className={styles.primaryButton} href="#test">開始整理這段關係</a>
-            <a className={styles.secondaryButton} href="#system">了解 SADM 怎麼運作</a>
-          </div>
-        </div>
-        <aside className={styles.heroPanel} aria-label="SADM 核心定位">
-          <p>不是問他愛不愛你，而是看這段關係值不值得你繼續投入。</p>
-          <strong>7 個元素、7 張牌、7 個分數，一個 SVS 結果。</strong>
-          <span>塔羅負責看見狀態，公式負責整理價值與成本，最後由你做出選擇。</span>
-        </aside>
-      </section>
+  return <main className={styles.pageShell}>
+    <nav className={styles.nav}><Link className={styles.brand} href="/tarot/sadm"><span className={styles.brandMark}>BF</span><span>BF Tarot · SADM</span></Link></nav>
+    <section className={styles.hero}>
+      <div className={styles.heroContent}><p className={styles.eyebrow}>Relationship Decision Mapping System</p><h1>你不是放不下他，<br />你是還沒看清這段關係的成本。</h1><p className={styles.heroSubtitle}>用 12 張狀態卡，看懂這段互動帶給你的滋養、拉扯與消耗。</p><div className={styles.heroActions}><a className={styles.primaryButton} href="#test">開始整理這段關係</a></div></div>
+      <aside className={styles.heroPanel}><p>不是問他愛不愛你，而是看這段關係如何影響你。</p><strong>憑最近一個月的真實感受作答。</strong><span>沒有標準答案，也不用替對方找理由。</span></aside>
+    </section>
 
-      <section className={styles.sectionGrid} id="system">
-        <div>
-          <p className={styles.sectionKicker}>What SADM does</p>
-          <h2>SADM 不是算命，也不是替你決定要不要分開。</h2>
-        </div>
-        <div className={styles.explainCard}>
-          <p>
-            它是一套關係決策整理工具。塔羅牌負責幫你看見每個面向的狀態；
-            分數負責幫你整理價值與成本；最後的選擇，仍然回到你自己手上。
-          </p>
-          <p>
-            第一版不需要登入、不接資料庫、不保存個資。你只需要輸入一個代稱，
-            依照 7 個元素打分數，就能即時計算出 SVS 結果。
-          </p>
-        </div>
-      </section>
+    <section className={styles.testSection} id="test" ref={cardRef}>
+      {phase === "quiz" && <div className={styles.quizWrap}>
+        <div className={styles.quizProgress}><span>關係狀態卡 {String(step + 1).padStart(2, "0")} / 12</span><div><i style={{ width: `${((step + 1) / 12) * 100}%` }} /></div></div>
+        <article className={styles.questionCard}>
+          <p className={styles.cardName}>{questions[step].name}</p><h2>{questions[step].hookTitle}</h2>
+          <div className={styles.answerStatement}><small>請針對下面這句話作答</small><p>{questions[step].answerStatement}</p></div>
+          <div className={styles.answerGrid}>{options.map((option, value) => <button key={option} type="button" className={answers[step] === value ? styles.answerSelected : ""} onClick={() => answer(value)}><span>{option}</span><small>{value} 分</small></button>)}</div>
+          <p className={styles.microCopy}>{questions[step].microCopy}</p>
+          <div className={styles.quizNav}><button type="button" disabled={step === 0} onClick={() => setStep((current) => current - 1)}>← 上一題</button><span>選擇後會自動前往下一題</span></div>
+        </article>
+      </div>}
 
-      <section className={styles.section} id="elements">
-        <div className={styles.sectionHeader}>
-          <p className={styles.sectionKicker}>Seven elements</p>
-          <h2>七個元素：三個價值面，四個成本面。</h2>
-        </div>
-        <div className={styles.elementGrid}>
-          {sadmElements.map((element) => (
-            <article className={styles.elementCard} key={element.key}>
-              <div className={styles.elementTopline}>
-                <span className={element.group === "value" ? styles.valueBadge : styles.costBadge}>{element.label}</span>
-                <small>{element.group === "value" ? "價值面" : "成本面"}</small>
-              </div>
-              <h3>{element.title}</h3>
-              <p>{element.question}</p>
-            </article>
-          ))}
-        </div>
-      </section>
+      {phase === "activation" && <article className={styles.activationCard}><p className={styles.sectionKicker}>前額葉啟動</p><h2>先把心動放旁邊，看看這段關係真正留下了什麼。</h2><p>你的答案已經整理完成。結果不是替任何人貼標籤，而是幫你重新看見自己的感受、時間與界線。</p><button className={styles.primaryButton} type="button" onClick={showResult}>查看我的關係狀態</button></article>}
 
-      <section className={styles.formulaSection}>
-        <div>
-          <p className={styles.sectionKicker}>SVS Formula</p>
-          <h2>SVS =（EMV + LV + AV）÷（CC + TC + OC + SC）</h2>
-        </div>
-        <div className={styles.formulaCopy}>
-          <p>上面是這段關係給你的價值，下面是你為這段關係付出的成本。</p>
-          <ul>
-            <li>如果價值遠高於成本，這段關係值得繼續投入。</li>
-            <li>如果成本快要吃掉價值，你就需要重新調整互動方式。</li>
-            <li>如果成本明顯大於價值，你可能不是在愛，而是在消耗。</li>
-          </ul>
-        </div>
-      </section>
-
-      <section className={styles.testSection} id="test">
-        <div className={styles.testIntro}>
-          <p className={styles.sectionKicker}>Interactive test</p>
-          <h2>用 3 分鐘整理這段關係。</h2>
-          <p>請用直覺打分數。1 代表非常低，10 代表非常高；成本面分數越高，代表消耗越大。</p>
-        </div>
-
-        <div className={styles.testLayout}>
-          <form className={styles.scoreCard}>
-            <label className={styles.subjectLabel}>
-              Step 1｜輸入關係對象代稱
-              <input
-                value={subject}
-                onChange={(event) => setSubject(event.target.value)}
-                placeholder="曖昧對象、前任、交往中的人、某個放不下的人"
-              />
-              <span>不用輸入真名，保護隱私。</span>
-            </label>
-
-            <div className={styles.sliderGroup}>
-              <h3>Step 2｜七個元素打分數</h3>
-              {sadmElements.map((element) => (
-                <label className={styles.sliderRow} key={element.key}>
-                  <span className={styles.sliderHeader}>
-                    <span><strong>{element.label}</strong> {element.title}</span>
-                    <b>{scores[element.key]}</b>
-                  </span>
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={scores[element.key]}
-                    onChange={(event) => updateScore(element.key, event.target.value)}
-                  />
-                  <span className={styles.sliderHints}>
-                    <small>{element.lowLabel}</small>
-                    <small>{element.highLabel}</small>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </form>
-
-          <aside className={styles.resultCard} aria-live="polite">
-            <p className={styles.sectionKicker}>Step 3｜產生 SVS 結果</p>
-            <div className={styles.scoreCircle}>
-              <span>SVS</span>
-              <strong>{svs.toFixed(2)}</strong>
-            </div>
-            <div className={styles.scoreBreakdown}>
-              <span>價值總分：{valueScore}</span>
-              <span>成本總分：{costScore}</span>
-            </div>
-            <div className={`${styles.resultBox} ${styles[result.tone]}`}>
-              <h3>{result.title}</h3>
-              <p>
-                你正在整理的對象是「{subject || "這段關係"}」。你的 SVS 分數是 {svs.toFixed(2)}。
-                {result.short}
-              </p>
-              <p>{result.action}</p>
-            </div>
-            <div className={styles.resultTable}>
-              <div><strong>≥ 1.5</strong><span>回報明顯高於成本</span></div>
-              <div><strong>1.0–1.49</strong><span>略高於成本，修正互動</span></div>
-              <div><strong>0.7–0.99</strong><span>成本偏高，設定停損</span></div>
-              <div><strong>&lt; 0.7</strong><span>高消耗低回報</span></div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <section className={styles.ctaSection}>
-        <div>
-          <p className={styles.sectionKicker}>BF Tarot relationship reading</p>
-          <h2>如果你想更深入看清這段關係，可以預約 BF Tarot 關係狀態整理。</h2>
-          <p>不是替你決定未來，而是幫你看清現在。</p>
-        </div>
-        <div className={styles.ctaActions}>
-          <a className={styles.primaryButton} href="https://line.me/R/ti/p/@359gzxzi" target="_blank" rel="noreferrer">
-            預約關係狀態整理
-          </a>
-          <a className={styles.secondaryButton} href="https://www.instagram.com/bodyfixgavin/" target="_blank" rel="noreferrer">
-            私訊 Gavin 看這段關係
-          </a>
-        </div>
-      </section>
-
-      <p className={styles.disclaimer}>
-        本工具為自我覺察與決策輔助，不是醫療、心理支持、法律或安全風險評估。若關係涉及暴力、威脅、跟蹤、勒索或人身安全疑慮，請優先尋求可信任的人與專業協助。
-      </p>
-    </main>
-  );
+      {phase === "result" && <article className={styles.humanReport} aria-live="polite">
+        <p className={styles.sectionKicker}>你的關係狀態</p><h2>{report.title}</h2><p className={styles.translation}>{report.translation}</p><div className={styles.insight}><h3>給你的溫柔洞察</h3><p>{report.insight}</p></div>
+        <div><h3>你主要卡在這裡</h3><div className={styles.metricGrid}>{topMetrics.map((metric) => <div key={metric}><span>{metricNames[metric]}</span><strong>{level(scores[metric], metric)}</strong></div>)}</div></div>
+        <div className={styles.brainAdvice}><h3>前額葉建議</h3><p>{report.action}</p></div>
+        <details className={styles.details}><summary>查看詳細分數</summary>{(Object.keys(scores) as Metric[]).map((metric) => <div key={metric}><span>{metricNames[metric]}</span><b>{scores[metric].toFixed(1)} / 3</b></div>)}</details>
+        <a className={styles.primaryButton} href="https://www.instagram.com/bodyfixgavin/" target="_blank" rel="noreferrer">私訊「狀態整理」，我陪你用 7 張牌看清楚</a>
+      </article>}
+    </section>
+    <p className={styles.disclaimer}>本工具為自我覺察與決策輔助，不是醫療、心理支持、法律或安全風險評估。若關係涉及暴力、威脅、跟蹤、勒索或人身安全疑慮，請優先尋求可信任的人與專業協助。</p>
+  </main>;
 }
