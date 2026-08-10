@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "SADM 關係決策整理系統｜BF Tarot",
-  description: "透過 7 個關係元素、7 張塔羅牌與一個 SVS 分數，整理關係價值與成本。"
+  description: "透過 12 張關係狀態卡，看懂互動中的滋養、拉扯與消耗。"
 };
 
 export default function SadmLayout({ children }: { children: ReactNode }) {

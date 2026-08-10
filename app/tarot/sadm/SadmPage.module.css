@@ -625,3 +625,142 @@
     flex-direction: column;
   }
 }
+
+.quizWrap,
+.activationCard,
+.humanReport {
+  width: min(760px, 100%);
+  margin-inline: auto;
+}
+
+.quizProgress {
+  margin-bottom: 14px;
+  color: #6f6a62;
+  font-weight: 800;
+}
+
+.quizProgress > div {
+  height: 5px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(13, 27, 42, 0.1);
+}
+
+.quizProgress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #b08a5a;
+  transition: width 0.2s ease;
+}
+
+.questionCard,
+.activationCard,
+.humanReport {
+  border: 1px solid rgba(176, 138, 90, 0.26);
+  border-radius: 28px;
+  padding: clamp(22px, 5vw, 42px);
+  background: rgba(255, 250, 241, 0.86);
+  box-shadow: 0 24px 70px rgba(13, 27, 42, 0.1);
+  scroll-margin-top: 18px;
+}
+
+.cardName {
+  margin: 0 0 10px;
+  color: #b08a5a;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.questionCard h2,
+.activationCard h2,
+.humanReport h2 {
+  margin: 0;
+  font-family: "Noto Serif TC", Georgia, serif;
+  font-size: clamp(1.7rem, 5vw, 2.6rem);
+  line-height: 1.35;
+}
+
+.answerStatement {
+  margin: 24px 0 18px;
+  border-left: 4px solid #b08a5a;
+  border-radius: 0 16px 16px 0;
+  padding: 16px 18px;
+  background: rgba(176, 138, 90, 0.1);
+}
+
+.answerStatement small {
+  color: #756c63;
+  font-weight: 800;
+}
+
+.answerStatement p {
+  margin: 7px 0 0;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.answerGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.answerGrid button {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgba(13, 27, 42, 0.14);
+  border-radius: 16px;
+  padding: 13px 16px;
+  color: #0d1b2a;
+  background: rgba(255, 255, 255, 0.62);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.answerGrid button:hover,
+.answerGrid .answerSelected {
+  border-color: #b08a5a;
+  background: rgba(176, 138, 90, 0.16);
+}
+
+.answerGrid small { color: #81766b; }
+.microCopy { margin: 20px 0 0; color: #786f66; font-size: 0.92rem; line-height: 1.7; }
+.quizNav { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 22px; }
+.quizNav button { border: 0; padding: 10px 0; color: #4b3b63; background: transparent; font: inherit; font-weight: 800; cursor: pointer; }
+.quizNav button:disabled { opacity: 0.3; cursor: default; }
+.quizNav span { color: #8a8178; font-size: 0.8rem; }
+
+.activationCard { text-align: center; }
+.activationCard > p:not(.sectionKicker) { max-width: 600px; margin: 18px auto 24px; color: #645d56; line-height: 1.8; }
+.activationCard button { border: 0; cursor: pointer; }
+.translation { margin: 16px 0 26px; color: #4b3b63; font-family: "Noto Serif TC", Georgia, serif; font-size: 1.3rem; font-weight: 800; line-height: 1.6; }
+.humanReport { display: grid; gap: 24px; }
+.humanReport h3 { margin: 0 0 9px; }
+.humanReport p { line-height: 1.8; }
+.insight, .brainAdvice { border-radius: 18px; padding: 18px; background: rgba(75, 59, 99, 0.08); }
+.insight p, .brainAdvice p { margin: 0; color: #534d47; }
+.brainAdvice { border-left: 4px solid #b08a5a; background: rgba(176, 138, 90, 0.11); }
+.metricGrid { display: grid; gap: 8px; }
+.metricGrid div, .details div { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-radius: 14px; padding: 12px 14px; background: rgba(255,255,255,0.6); }
+.metricGrid strong { min-width: 42px; border-radius: 999px; padding: 4px 9px; color: #fffaf1; background: #4b3b63; text-align: center; }
+.details { border-top: 1px solid rgba(13, 27, 42, 0.1); padding-top: 16px; }
+.details summary { margin-bottom: 10px; color: #655c53; font-weight: 800; cursor: pointer; }
+.details div { margin-top: 6px; color: #655c53; font-size: 0.9rem; }
+.humanReport > .primaryButton { border-radius: 16px; text-align: center; }
+
+@media (max-width: 640px) {
+  .pageShell { overflow-x: hidden; }
+  .heroContent::after { display: none; }
+  .questionCard, .activationCard, .humanReport { border-radius: 22px; }
+  .answerGrid { grid-template-columns: 1fr; }
+  .answerGrid button { min-height: 58px; }
+  .quizNav { align-items: flex-start; flex-direction: column; }
+}
