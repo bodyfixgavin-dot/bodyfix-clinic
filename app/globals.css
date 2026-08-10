@@ -214,6 +214,20 @@ a { color: inherit; }
 .bf-login-form { max-width: 420px; }
 .bf-admin-notice { margin-top: 22px; }
 
+.bf-admin-tool-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--bf-bronze);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.bf-admin-tool-card .bf-primary {
+  display: inline-block;
+  text-decoration: none;
+}
+
 .bf-table-wrap { overflow-x: auto; }
 
 .bf-admin-table {

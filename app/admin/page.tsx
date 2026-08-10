@@ -272,6 +272,13 @@ export default function AdminPage() {
         <a className="bf-primary" href="/admin/pulse">進入 BodyFix Admin｜營運管理後台</a>
       </section>
 
+      <section className="bf-card bf-section-gap bf-admin-tool-card">
+        <span className="bf-admin-tool-eyebrow">OPERATIONS / DECISION SYSTEM</span>
+        <h2 className="bf-section-title">STRATEGIC DECISIONS｜策略決策</h2>
+        <p className="bf-subtitle">判斷哪些工作應該繼續、修正、測試或暫停，讓時間、金錢與注意力流向目前最值得投入的地方。</p>
+        <a className="bf-primary" href="/admin/strategic-decisions">ENTER →</a>
+      </section>
+
       <section className="bf-card bf-section-gap">
         <h2 className="bf-section-title">新增可約時段</h2>
         <div className="bf-form">
