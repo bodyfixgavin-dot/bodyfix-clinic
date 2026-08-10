@@ -25,7 +25,7 @@ export default function StrategicDecisions() {
 
   return (
     <main className={styles.shell}>
-      <header className={styles.topbar}><div><Link href="/owner-mode">BODYFIX OS / OWNER MODE</Link><span> / STRATEGIC DECISIONS</span></div><span className={styles.localBadge}>LOCAL WORKSPACE · DEMO SEED</span></header>
+      <header className={styles.topbar}><div><Link href="/admin">BODYFIX OS / ADMIN</Link><span> / STRATEGIC DECISIONS</span></div><span className={styles.localBadge}>LOCAL WORKSPACE · DEMO SEED</span></header>
       <section className={styles.hero}>
         <div><p className={styles.eyebrow}>STRATEGIC ABANDONMENT FRAMEWORK</p><h1>資源應該<br />繼續流向哪裡？</h1></div>
         <div className={styles.principle}><strong>READ SIGNALS → SCORE → DECIDE → REVIEW</strong><p>從現在開始，再投入下一個小時，預期能換到什麼？</p></div>

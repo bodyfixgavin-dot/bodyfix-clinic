@@ -31,8 +31,7 @@
   padding: clamp(52px, 10vw, 112px) 0 clamp(40px, 7vw, 72px);
 }
 
-.hero p,
-.cardIndex {
+.hero p {
   color: #cdbb9e;
   font-size: 0.72rem;
   letter-spacing: 0.2em;
@@ -52,69 +51,9 @@
   line-height: 1.8;
 }
 
-.entries {
-  border-top: 1px solid rgba(245, 239, 229, 0.14);
-  padding-top: clamp(28px, 5vw, 48px);
-}
-
-.decisionCard {
-  display: grid;
-  grid-template-columns: 150px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: clamp(20px, 4vw, 52px);
-  min-height: 210px;
-  padding: clamp(24px, 5vw, 52px);
-  border: 1px solid rgba(221, 201, 166, 0.42);
-  background: linear-gradient(135deg, rgba(221, 201, 166, 0.1), rgba(221, 201, 166, 0.02));
-  color: #f5efe5;
-  text-decoration: none;
-  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
-}
-
-.decisionCard:hover,
-.decisionCard:focus-visible {
-  border-color: #ddc9a6;
-  background: rgba(221, 201, 166, 0.12);
-  transform: translateY(-2px);
-}
-
-.decisionCard:focus-visible {
-  outline: 3px solid rgba(221, 201, 166, 0.3);
-  outline-offset: 5px;
-}
-
-.decisionCard h2 {
-  margin: 0 0 14px;
-  font-size: clamp(1.55rem, 4vw, 2.8rem);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-}
-
-.decisionCard p {
-  margin: 0;
-  color: rgba(245, 239, 229, 0.68);
-  line-height: 1.7;
-}
-
-.decisionCard strong {
-  color: #ddc9a6;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  white-space: nowrap;
-}
-
 @media (max-width: 680px) {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .decisionCard {
-    grid-template-columns: 1fr;
-    min-height: 250px;
-  }
-
-  .decisionCard strong {
-    justify-self: start;
   }
 }
