@@ -80,9 +80,9 @@ function EmptyState({ activeTab }: { activeTab: TabKey }) {
         {isAllTab ? <p className="bf-muted-note">全部客戶目前也沒有資料；新增第一位客戶後，這裡就會變成 CRM 總表。</p> : null}
       </div>
       <div className="bf-empty-actions">
-        <Link className="bf-primary bf-link-button" href="/clinic/clients/new">新增客戶</Link>
+        <Link className="bf-primary bf-link-button" href="/admin/crm/clients/new">新增客戶</Link>
         <button className="bf-secondary bf-link-button" type="button" disabled title="規劃中">建立方案（規劃中）</button>
-        <Link className="bf-secondary bf-link-button" href="/clinic">返回 BodyFix Admin</Link>
+        <Link className="bf-secondary bf-link-button" href="/admin/crm">返回 BodyFix Admin</Link>
       </div>
     </section>
   );
@@ -113,7 +113,7 @@ function CustomerTable({ rows }: { rows: CustomerOverview[] }) {
           {rows.map((customer) => (
             <tr key={customer.customer_id}>
               <td>
-                <Link href={`/clinic/clients/${customer.customer_id}`}>
+                <Link href={`/admin/crm/clients/${customer.customer_id}`}>
                   {customer.customer_name}{customer.client_code ? `｜${customer.client_code}` : ""}
                 </Link>
               </td>
@@ -148,7 +148,7 @@ function UnpaidTable({ rows }: { rows: UnpaidOverview[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              <td><Link href={`/clinic/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
+              <td><Link href={`/admin/crm/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
               <td>{row.package_name}</td>
               <td>{money(row.paid_amount)}</td>
               <td>{money(row.outstanding_amount)}</td>
@@ -179,7 +179,7 @@ function FlexibleTable({ rows }: { rows: FlexiblePaymentOverview[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              <td><Link href={`/clinic/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
+              <td><Link href={`/admin/crm/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
               <td>{row.package_name}</td>
               <td>{money(row.paid_amount)}</td>
               <td>{money(row.outstanding_amount)}</td>
