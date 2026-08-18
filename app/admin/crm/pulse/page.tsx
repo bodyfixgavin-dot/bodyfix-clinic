@@ -52,7 +52,7 @@ export default async function PulseDashboardPage() {
 
       <div className="section-row">
         <h2 className="section-label">今天先做什麼</h2>
-        <Link href="/admin/pulse/income">記收入 →</Link>
+        <Link href="/admin/crm/pulse/income">記收入 →</Link>
       </div>
       <section className="followup-list">
         <article>
@@ -61,7 +61,7 @@ export default async function PulseDashboardPage() {
             <b>回訪池</b>
             <p>v0.9 尚未接正式回訪資料，先保留空狀態。</p>
           </div>
-          <Link href="/admin/pulse/followups">查看</Link>
+          <Link href="/admin/crm/pulse/followups">查看</Link>
         </article>
       </section>
     </PulseShell>

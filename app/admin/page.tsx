@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { AvailabilitySlot, BookingRequest, BookingService, BookingStatus } from "@/types/booking";
 
@@ -253,11 +254,47 @@ export default function AdminPage() {
 
   return (
     <main className="bf-container bf-admin-mobile-safe">
-      <section className="bf-hero">
+      <section className="bf-hero bf-admin-overview-hero">
         <div className="bf-brand"><span className="bf-logo-box">BF</span> BODYFIX ADMIN</div>
-        <h1>預約管理後台</h1>
-        <p className="bf-subtitle">管理時段、確認預約、取消、完成。這裡是第一版營運控制台。</p>
+        <h1>營運管理總覽</h1>
+        <p className="bf-subtitle">客戶、服務紀錄、預約、追蹤、收入與營運決策，共用同一個 BodyFix 管理入口。</p>
+        <p className="bf-body-copy">從這裡進入 CRM、預約管理與每日營運工具。</p>
         <button className="bf-small-btn" type="button" onClick={logout}>登出</button>
+      </section>
+
+      <section className="bf-admin-crm-entry" aria-labelledby="admin-crm-title">
+        <p className="bf-admin-entry-eyebrow">CORE OPERATIONS</p>
+        <h2 id="admin-crm-title">BODYFIX CRM</h2>
+        <strong>核心營運系統</strong>
+        <p>客戶主檔、服務紀錄、問卷、追蹤、方案與轉換，集中在同一個工作區。</p>
+        <p className="bf-admin-flow">客戶 → 服務 → 追蹤 → 方案 → 轉換</p>
+        <Link className="bf-admin-entry-link bf-admin-entry-link-primary" href="/admin/crm">進入 CRM →</Link>
+      </section>
+
+      <section className="bf-admin-operations" aria-labelledby="admin-operations-title">
+        <h2 id="admin-operations-title" className="bf-section-title">核心營運入口</h2>
+        <div className="bf-admin-entry-grid">
+          <article className="bf-admin-entry-card">
+            <p className="bf-admin-entry-eyebrow">BOOKING</p><h3>預約管理</h3>
+            <p>管理可約時段、預約申請、確認、取消與完成。</p>
+            <Link className="bf-admin-entry-link" href="/admin#booking">管理預約 →</Link>
+          </article>
+          <article className="bf-admin-entry-card">
+            <p className="bf-admin-entry-eyebrow">PULSE</p><h3>今日營運節奏</h3>
+            <p>查看今日收入、目標差額、未來預約與回訪狀態。</p>
+            <Link className="bf-admin-entry-link" href="/admin/crm/pulse">進入 Pulse →</Link>
+          </article>
+          <article className="bf-admin-entry-card">
+            <p className="bf-admin-entry-eyebrow">STRATEGIC DECISIONS</p><h3>策略決策</h3>
+            <p>判斷目前工作應該繼續、修正、測試或暫停，讓時間與資源流向更值得投入的地方。</p>
+            <Link className="bf-admin-entry-link" href="/admin/strategic-decisions">進入策略決策 →</Link>
+          </article>
+          <article className="bf-admin-entry-card">
+            <p className="bf-admin-entry-eyebrow">OPERATIONS</p><h3>營運工具</h3>
+            <p>Business Foundation、AI Copilot、Codebook、Calendar Backfill 與其他系統維護工具。</p>
+            <Link className="bf-admin-entry-link" href="/admin/crm">查看營運工具 →</Link>
+          </article>
+        </div>
       </section>
 
       {bypassMode && (
@@ -266,17 +303,9 @@ export default function AdminPage() {
       {errorMessage && <div className="bf-notice bf-admin-notice">{errorMessage}</div>}
       <AdminDataStatusCard diagnostics={diagnostics} errorMessage={errorMessage} />
 
-      <section className="bf-card bf-section-gap">
-        <h2 className="bf-section-title">BodyFix Admin｜營運管理後台</h2>
-        <p className="bf-subtitle">收入節奏、今日戰況與回訪空狀態。Pulse 放在 Admin 管理後台，不取代既有預約管理功能。</p>
-        <a className="bf-primary" href="/admin/pulse">進入 BodyFix Admin｜營運管理後台</a>
-      </section>
-
-      <section className="bf-card bf-section-gap bf-admin-tool-card">
-        <span className="bf-admin-tool-eyebrow">OPERATIONS / DECISION SYSTEM</span>
-        <h2 className="bf-section-title">STRATEGIC DECISIONS｜策略決策</h2>
-        <p className="bf-subtitle">判斷哪些工作應該繼續、修正、測試或暫停，讓時間、金錢與注意力流向目前最值得投入的地方。</p>
-        <a className="bf-primary" href="/admin/strategic-decisions">ENTER →</a>
+      <section className="bf-admin-booking-section" id="booking" aria-labelledby="booking-title">
+        <h2 id="booking-title" className="bf-section-title">預約管理</h2>
+        <p className="bf-subtitle">管理可約時段、預約申請與目前預約狀態。</p>
       </section>
 
       <section className="bf-card bf-section-gap">

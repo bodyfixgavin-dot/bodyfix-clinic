@@ -14,9 +14,13 @@ const dashboardGroups: DashboardGroup[] = [
     description: "每天最常用的操作，從這裡開始。",
     links: [
       { label: "總覽", href: "/admin/crm" },
+      { label: "客戶列表", href: "/admin/crm/clients" },
       { label: "新增服務紀錄", href: "/admin/crm/records/new" },
       { label: "追蹤提醒", href: "/admin/crm/followups" },
-      { label: "預約後台", href: "/admin" },
+      { label: "問卷回覆", href: "/admin/crm/intake-submissions" },
+      { label: "方案轉換", href: "/admin/crm/conversion" },
+      { label: "Pulse", href: "/admin/crm/pulse" },
+      { label: "預約管理", href: "/admin#booking" },
       { label: "行事曆回填", href: "/admin/crm/calendar-backfill" },
     ],
   },
@@ -149,15 +153,19 @@ export function CrmShell({ title, subtitle, children, showDashboardMenu = false 
         <p className="bf-subtitle">{subtitle}</p>
         {!showDashboardMenu && (
           <nav className="clinic-nav clinic-nav-compact" aria-label="後台快速導覽">
+            <Link href="/admin">回 BodyFix Admin</Link>
             <Link href="/admin/crm">回到 CRM 總覽</Link>
+            <Link href="/admin/crm/clients">客戶</Link>
             <Link href="/admin/crm/records/new">新增服務紀錄</Link>
             <Link href="/admin/crm/followups">追蹤提醒</Link>
-            <Link href="/admin">預約後台</Link>
+            <Link href="/admin/crm/intake-submissions">問卷</Link>
+            <Link href="/admin/crm/conversion">轉換</Link>
+            <Link href="/admin/crm/pulse">Pulse</Link>
           </nav>
         )}
       </section>
       {showDashboardMenu && (
-        <nav className="clinic-menu-grid bf-section-gap" aria-label="BodyFix Admin 營運管理後台功能分類">
+        <nav className="clinic-menu-grid bf-section-gap" aria-label="BodyFix CRM 功能分類">
           {dashboardGroups.map((group) => <DashboardGroupCard group={group} key={group.title} />)}
         </nav>
       )}
@@ -180,7 +188,7 @@ export function useClinicFetch<T>(url: string): LoadState<T> & { reload: () => P
     try {
       const res = await fetch(url, { cache: "no-store" });
       if (res.status === 401) {
-        setState({ data: null, error: "請先到 /admin 登入 BodyFix Admin｜營運管理後台，再回到後台總覽。", loading: false, diagnostics: { loginState: "unauthenticated", databaseState: "not_checked", requestPath: url } });
+        setState({ data: null, error: "請先到 /admin 登入 BodyFix Admin，再回到 CRM。", loading: false, diagnostics: { loginState: "unauthenticated", databaseState: "not_checked", requestPath: url } });
         return;
       }
       const json = await res.json().catch(() => ({}));
@@ -198,7 +206,7 @@ export function useClinicFetch<T>(url: string): LoadState<T> & { reload: () => P
 }
 
 export function ClinicNotice({ loading, error, diagnostics }: { loading?: boolean; error?: string; diagnostics?: AdminDiagnostics | null }) {
-  if (loading) return <div className="bf-card bf-section-gap">載入 BodyFix Admin｜營運管理後台資料中…</div>;
+  if (loading) return <div className="bf-card bf-section-gap">載入 BodyFix CRM 資料中…</div>;
   if (!error) return null;
   return (
     <section className="bf-card bf-section-gap" role="alert">

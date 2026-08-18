@@ -242,11 +242,12 @@ export function CustomerBalanceOverview() {
   return (
     <main className="bf-container bf-os-page bf-client-balance-page">
       <section className="bf-hero">
-        <div className="bf-brand"><span className="bf-logo-box">BF</span> BodyFix OS</div>
+        <Link className="bf-brand" href="/admin"><span className="bf-logo-box">BF</span> BODYFIX ADMIN</Link>
         <p className="bf-kicker">Client balance overview</p>
         <h1>客戶列表 / 方案餘額</h1>
         <p className="bf-subtitle">查看客戶方案、剩餘堂數、未收款與續約提醒。</p>
-        <p className="bf-body-copy">此頁已升級為 CRM 總覽；低餘額提醒只是其中一個分頁，不再讓沒有提醒資料時顯示空白。</p>
+        <p className="bf-body-copy">財務與堂數功能尚待收進 CRM；本頁暫時保留為相容營運工具，不是第二套客戶主檔。</p>
+        <Link className="bf-admin-entry-link" href="/admin/crm/clients">前往 CRM 客戶主檔 →</Link>
       </section>
 
       <DataStatus loading={loading} error={error} />

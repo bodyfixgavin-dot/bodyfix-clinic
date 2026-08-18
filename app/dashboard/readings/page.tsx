@@ -1,4 +1,5 @@
 import { SupabaseNotConnectedState } from "@/components/SupabaseNotConnectedState";
+import Link from "next/link";
 import { ReadingOrderCard } from "@/components/ReadingOrderCard";
 import { createSupabaseServerClient, hasSupabaseEnv } from "@/lib/supabase/server";
 
@@ -39,13 +40,14 @@ export default async function ReadingsPage() {
     <main className="mx-auto w-full max-w-6xl space-y-6 overflow-x-hidden px-5 py-6 text-[#172333] sm:px-6">
       <section className="rounded-[28px] border border-[rgba(23,35,51,.16)] bg-[rgba(251,250,246,.92)] p-5 shadow-[0_24px_60px_rgba(23,35,51,.08)] sm:p-7">
         <div className="mb-3 flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-[#9b7550]">
-          <span>BodyFix OS</span>
+          <Link href="/admin">BODYFIX ADMIN</Link>
           <span className="rounded-full border border-[#c6aa87] px-3 py-1">Order desk</span>
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">紫微 / 塔羅文字單管理頁</h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6f6a63] sm:text-base">
           用這一頁快速建立文字單、記錄收款、追蹤未收款，並管理活動贈送權益。沒有資料的區塊會顯示明確空白狀態，不再留下大片空白。
         </p>
+        <p className="mt-2 max-w-3xl text-sm leading-7 text-[#6f6a63]">此跨領域文字單流程尚無安全的一對一 canonical route，因此暫時保留，不屬於 BodyFix CRM 主導覽。</p>
       </section>
 
       <section className="rounded-3xl border border-[rgba(23,35,51,.14)] bg-[#fbfaf6] p-4 shadow-sm sm:p-5">

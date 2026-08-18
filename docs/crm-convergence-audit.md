@@ -29,13 +29,40 @@ introspection and row counts therefore remain an Owner-run preflight.
 | `booking_requests` | booking/admin | Request and slot-hold source only | Must not count as attendance or revenue |
 | `intake_submissions` | public intake and resolver | Submission/lead until resolved | Existing resolver blocks ambiguous matches |
 | `client_profiles`, `client_bookings`, `client_service_records` | Client Portal | Authorized read projection | Live-schema/RLS inspection required before cutover |
-| `pulse_*` | `/admin/pulse` | Legacy read source only | Demo inserts and free-text identities block canonical claim |
+| `pulse_*` | `/admin/crm/pulse` | Legacy read source only | Demo inserts and free-text identities block canonical claim |
 | location-demand and city tables | public demand and CRM operations | Lead/operations domains | Do not create a client from interest alone |
 | Google Sheet A:T | LINE webhook and cron | Legacy channel mirror | Must not overwrite the client master |
 | `/admin/crm/**` | migrated CRM pages | Canonical authenticated operations namespace | Implemented for every former UI route |
 | `/clinic/**` | old bookmarks | 308 compatibility redirect | Preserves subpath, dynamic ID, and query |
 | `/OS` | new branded entry | BodyFix OS entry, not a CRM database | Links to authenticated CRM and login |
 | `/api/clinic/**` | existing page mutations | Transitional compatibility API | Kept in place; shared services/new namespace are a later cutover |
+
+## Canonical Route Ownership
+
+| Domain | Canonical route | Legacy route | Status |
+| --- | --- | --- | --- |
+| BodyFix Admin | `/admin` | `/dashboard` | Admin is the sole operations entry; dashboard root uses 308 compatibility |
+| CRM | `/admin/crm/**` | `/clinic/**` | 308 compatibility preserving subpath and query |
+| Pulse | `/admin/crm/pulse/**` | `/admin/pulse/**` | One moved implementation; 308 compatibility preserving subpath and query |
+| Booking | `/admin#booking` | booking controls formerly presented as all of `/admin` | Existing UI and APIs retained in an anchored Admin module |
+| Customer finance | future CRM finance module | `/dashboard/customers` | Transitional: balances, low-credit, unpaid and flexible-payment views are not yet present in CRM clients |
+| Fulfillment checkout | future canonical appointment/finance workflow | `/dashboard/appointments` | Transitional: combines completed service, payment, ledger and follow-up actions; unsafe to redirect to one existing page |
+| Digital readings | future Chart Navigator domain route | `/dashboard/readings` | Transitional: digital orders and campaign entitlements cross the BodyFix domain boundary; not linked from primary navigation |
+| Strategic Decisions | `/admin/strategic-decisions` | none | Existing strategy tool retained |
+| Client Portal | `/client/**` | none | Customer-side authorized projection; does not move into CRM |
+| Public Intake | `/intake` | none | Public questionnaire feeding the CRM core; UI remains outside Admin |
+| BodyFix OS | `/OS` | none | Branded system entry only; links onward to Admin/CRM and is not an operations dashboard |
+
+The transitional `/api/clinic/**` namespace remains the shared, authenticated
+service layer during UI route convergence. This round does not rename those
+handlers or create a second API implementation.
+
+### Round boundary
+
+* No Supabase migration.
+* No production data mutation.
+* No customer import.
+* No production reconciliation or schema introspection.
 
 ## SQL drift inventory
 
