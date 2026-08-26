@@ -6,7 +6,7 @@ import {
   hasAdminPassword,
   hasAdminSessionSecret,
   isAdminBypassAllowed
-} from "@/lib/admin-session";
+} from "../../../../lib/admin-session";
 
 function setAdminCookie(res: NextResponse) {
   res.cookies.set({

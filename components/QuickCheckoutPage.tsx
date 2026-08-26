@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { completeAppointmentAndDeductItems } from "@/app/actions/appointments";
 import { createPayment } from "@/app/actions/payments";
@@ -699,10 +700,12 @@ export function QuickCheckoutPage({ customers }: { customers: CustomerOption[] }
     <main className="mx-auto w-full max-w-6xl space-y-6 overflow-x-hidden px-5 py-6 pb-28 text-slate-900 sm:px-6 lg:pb-6">
       <section className="rounded-[28px] border border-[rgba(23,35,51,.16)] bg-[rgba(251,250,246,.9)] p-5 shadow-[0_24px_60px_rgba(23,35,51,.08)] sm:p-7">
         <div className="mb-3 flex flex-wrap items-center gap-2 text-sm font-semibold uppercase tracking-[.16em] text-[#9b7550]">
-          <span>BodyFix OS</span>
+          <Link href="/admin">BODYFIX ADMIN</Link>
           <span className="rounded-full border border-[#c6aa87] px-3 py-1 text-xs">Operational flow</span>
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-[#172333] sm:text-4xl">服務後快速記錄 v0.2</h1>
+        <p className="mt-2 text-sm leading-6 text-[#6f6a63]">此頁同時處理完成服務、收款與扣堂，暫時保留為 transitional fulfillment tool。</p>
+        <Link className="mt-3 inline-flex min-h-12 items-center rounded-2xl border border-[rgba(23,35,51,.18)] px-4 py-2 font-bold text-[#172333]" href="/admin/booking">回預約管理 →</Link>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6f6a63] sm:text-base">
           依照現場操作順序完成：先確認客戶，再選主服務、加購、方案、扣堂 / 收款、紀錄與追蹤提醒。
         </p>

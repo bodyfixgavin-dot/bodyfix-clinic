@@ -80,9 +80,9 @@ function EmptyState({ activeTab }: { activeTab: TabKey }) {
         {isAllTab ? <p className="bf-muted-note">全部客戶目前也沒有資料；新增第一位客戶後，這裡就會變成 CRM 總表。</p> : null}
       </div>
       <div className="bf-empty-actions">
-        <Link className="bf-primary bf-link-button" href="/clinic/clients/new">新增客戶</Link>
+        <Link className="bf-primary bf-link-button" href="/admin/crm/clients/new">新增客戶</Link>
         <button className="bf-secondary bf-link-button" type="button" disabled title="規劃中">建立方案（規劃中）</button>
-        <Link className="bf-secondary bf-link-button" href="/clinic">返回 BodyFix Admin</Link>
+        <Link className="bf-secondary bf-link-button" href="/admin/crm">返回 BodyFix Admin</Link>
       </div>
     </section>
   );
@@ -113,7 +113,7 @@ function CustomerTable({ rows }: { rows: CustomerOverview[] }) {
           {rows.map((customer) => (
             <tr key={customer.customer_id}>
               <td>
-                <Link href={`/clinic/clients/${customer.customer_id}`}>
+                <Link href={`/admin/crm/clients/${customer.customer_id}`}>
                   {customer.customer_name}{customer.client_code ? `｜${customer.client_code}` : ""}
                 </Link>
               </td>
@@ -148,7 +148,7 @@ function UnpaidTable({ rows }: { rows: UnpaidOverview[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              <td><Link href={`/clinic/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
+              <td><Link href={`/admin/crm/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
               <td>{row.package_name}</td>
               <td>{money(row.paid_amount)}</td>
               <td>{money(row.outstanding_amount)}</td>
@@ -179,7 +179,7 @@ function FlexibleTable({ rows }: { rows: FlexiblePaymentOverview[] }) {
         <tbody>
           {rows.map((row) => (
             <tr key={row.id}>
-              <td><Link href={`/clinic/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
+              <td><Link href={`/admin/crm/clients/${row.customer_id}`}>{row.customer_name}</Link></td>
               <td>{row.package_name}</td>
               <td>{money(row.paid_amount)}</td>
               <td>{money(row.outstanding_amount)}</td>
@@ -242,11 +242,12 @@ export function CustomerBalanceOverview() {
   return (
     <main className="bf-container bf-os-page bf-client-balance-page">
       <section className="bf-hero">
-        <div className="bf-brand"><span className="bf-logo-box">BF</span> BodyFix OS</div>
+        <Link className="bf-brand" href="/admin"><span className="bf-logo-box">BF</span> BODYFIX ADMIN</Link>
         <p className="bf-kicker">Client balance overview</p>
         <h1>客戶列表 / 方案餘額</h1>
         <p className="bf-subtitle">查看客戶方案、剩餘堂數、未收款與續約提醒。</p>
-        <p className="bf-body-copy">此頁已升級為 CRM 總覽；低餘額提醒只是其中一個分頁，不再讓沒有提醒資料時顯示空白。</p>
+        <p className="bf-body-copy">財務與堂數功能尚待收進 CRM；本頁暫時保留為相容營運工具，不是第二套客戶主檔。</p>
+        <Link className="bf-admin-entry-link" href="/admin/crm/clients">前往 CRM 客戶主檔 →</Link>
       </section>
 
       <DataStatus loading={loading} error={error} />
