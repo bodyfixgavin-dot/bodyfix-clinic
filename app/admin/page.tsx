@@ -2,250 +2,86 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { AvailabilitySlot, BookingRequest, BookingService, BookingStatus } from "@/types/booking";
 
-type AdminDiagnostics = {
-  loginState?: "unauthenticated" | "authenticated";
-  databaseState?: "not_checked" | "failed" | "ready";
-  requestPath?: string;
-  failedRequest?: string;
-  errorReason?: string;
-  envErrors?: string[];
-  missingEnv?: string[];
-  checkedEnv?: string[];
-  requiredEnv?: string[];
-  nextStep?: string;
-};
+type AccessState = "checking" | "authenticated" | "login" | "error";
 
-function buildAdminErrorMessage(data: { error?: string; diagnostics?: AdminDiagnostics; missingEnv?: string[]; requestPath?: string; failedRequest?: string } | null) {
-  const diagnostics = data?.diagnostics;
-  const envErrors = diagnostics?.envErrors ?? [];
-  const missingEnv = diagnostics?.missingEnv ?? data?.missingEnv ?? [];
-  if (envErrors.length > 0) {
-    return `載入後台資料失敗：${envErrors.join("；")}。`;
-  }
-  if (missingEnv.length > 0) {
-    return `載入後台資料失敗：缺少 ${missingEnv.join("、")}。請確認 Vercel Environment Variables 後重新部署。`;
-  }
-  if (data?.failedRequest || data?.requestPath) {
-    return "載入後台資料失敗，請檢查後台 API、登入狀態或 Supabase 環境變數。";
-  }
-  return data?.error ? `載入後台資料失敗：${data.error}` : "載入後台資料失敗，請確認 Supabase 與後台環境變數。";
-}
-
-function AdminDataStatusCard({ diagnostics, errorMessage }: { diagnostics: AdminDiagnostics | null; errorMessage: string }) {
-  if (!errorMessage && diagnostics?.databaseState !== "failed") return null;
-
-  return (
-    <section className="bf-card bf-section-gap" role="alert">
-      <h2 className="bf-section-title">後台資料庫狀態</h2>
-      <p>登入狀態：{diagnostics?.loginState === "authenticated" ? "已通過" : "未登入"}</p>
-      <p>資料庫狀態：{diagnostics?.databaseState === "failed" ? "失敗" : "未完成檢查"}</p>
-      <p>錯誤原因：{diagnostics?.errorReason ?? errorMessage}</p>
-      {diagnostics?.missingEnv?.length ? <p>缺少 env：{diagnostics.missingEnv.join("、")}</p> : null}
-      {diagnostics?.envErrors?.length ? (
-        <ul>
-          {diagnostics.envErrors.map((envError) => <li key={envError}>{envError}</li>)}
-        </ul>
-      ) : null}
-      <p>連線狀態：後台資料 API 連線失敗</p>
-      <p>下一步：{diagnostics?.nextStep ?? "請確認 Vercel env 後重新部署。"}</p>
-      {diagnostics?.checkedEnv?.length ? <p>已檢查 env：{diagnostics.checkedEnv.join("、")}（不顯示任何 secret value）</p> : null}
-    </section>
-  );
-}
-
-function fmt(dt: string) {
-  return new Intl.DateTimeFormat("zh-TW", {
-    month: "numeric",
-    day: "numeric",
-    weekday: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false
-  }).format(new Date(dt));
-}
+type SessionPayload = { authenticated?: boolean; bypassMode?: boolean };
 
 export default function AdminPage() {
+  const [accessState, setAccessState] = useState<AccessState>("checking");
   const [password, setPassword] = useState("");
-  const [authed, setAuthed] = useState(false);
-  const [bookings, setBookings] = useState<BookingRequest[]>([]);
-  const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
-  const [services, setServices] = useState<BookingService[]>([]);
-  const [startsAt, setStartsAt] = useState("");
-  const [endsAt, setEndsAt] = useState("");
-  const [city, setCity] = useState<AvailabilitySlot["city"]>("taipei");
-  const [slotType, setSlotType] = useState<AvailabilitySlot["slot_type"]>("normal");
-  const [note, setNote] = useState("");
+  const [previewMode, setPreviewMode] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [diagnostics, setDiagnostics] = useState<AdminDiagnostics | null>(null);
-  const [bypassMode, setBypassMode] = useState(false);
-  const [localMode, setLocalMode] = useState(false);
 
-  async function loadAdminData() {
-    if (localMode) {
-      setSlots(JSON.parse(localStorage.getItem("bodyfix-preview-slots") || "[]") as AvailabilitySlot[]);
-      return;
+  useEffect(() => {
+    async function initializeAccess() {
+      try {
+        const sessionResponse = await fetch("/api/admin/session", { cache: "no-store" });
+        if (!sessionResponse.ok) throw new Error("session check failed");
+        const session = await sessionResponse.json() as SessionPayload;
+        setPreviewMode(Boolean(session.bypassMode));
+
+        if (session.authenticated) {
+          setAccessState("authenticated");
+          return;
+        }
+
+        if (session.bypassMode) {
+          const bootstrapResponse = await fetch("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ bypass: true }),
+          });
+          if (!bootstrapResponse.ok) throw new Error("preview session bootstrap failed");
+          setAccessState("authenticated");
+          return;
+        }
+
+        setAccessState("login");
+      } catch {
+        setErrorMessage("無法建立管理 session，請重新整理或確認 Preview 環境設定。");
+        setAccessState("error");
+      }
     }
-    setErrorMessage("");
-    setDiagnostics(null);
-    const res = await fetch("/api/admin/slots", { cache: "no-store" });
 
-    if (res.status === 401) {
-      setAuthed(false);
-      return;
-    }
-
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok) {
-      setDiagnostics((data?.diagnostics ?? null) as AdminDiagnostics | null);
-      setErrorMessage(buildAdminErrorMessage(data));
-      return;
-    }
-
-    setBookings((data.bookings ?? []) as BookingRequest[]);
-    setSlots((data.slots ?? []) as AvailabilitySlot[]);
-    setServices((data.services ?? []) as BookingService[]);
-    setDiagnostics({ loginState: "authenticated", databaseState: "ready", requestPath: "/api/admin/slots" });
-  }
+    initializeAccess();
+  }, []);
 
   async function login() {
-    if (bypassMode) { setLocalMode(true); setAuthed(true); setSlots(JSON.parse(localStorage.getItem("bodyfix-preview-slots") || "[]")); return; }
     setErrorMessage("");
-    const res = await fetch("/api/admin/login", {
+    const response = await fetch("/api/admin/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ password }),
     });
-
-    if (res.ok) {
-      setAuthed(true);
-      setPassword("");
-      await loadAdminData();
-    } else {
+    if (!response.ok) {
       setErrorMessage("密碼錯誤，或後台環境變數尚未設定。");
+      return;
     }
+    setPassword("");
+    setAccessState("authenticated");
   }
 
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    setAuthed(false);
-    setBookings([]);
-    setSlots([]);
-    setServices([]);
+    setAccessState(previewMode ? "checking" : "login");
+    if (previewMode) window.location.reload();
   }
 
-  useEffect(() => {
-    async function checkSession() {
-      const res = await fetch("/api/admin/session", { cache: "no-store" });
-      if (!res.ok) return;
-
-      const data = await res.json();
-      setBypassMode(Boolean(data.bypassMode));
-      if (data.bypassMode) setLocalMode(true);
-      if (data.authenticated) {
-        setAuthed(true);
-        await loadAdminData();
-      }
-    }
-
-    checkSession();
-  }, []);
-
-  async function updateBookingStatus(id: string, status: BookingStatus) {
-    const res = await fetch("/api/admin/bookings/status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status })
-    });
-
-    if (!res.ok) {
-      setErrorMessage("更新失敗，請重新登入或稍後再試。");
-      return;
-    }
-
-    await loadAdminData();
+  if (accessState === "checking") {
+    return <AdminAccessStatus message="正在進入 Preview 管理後台…" />;
   }
 
-  async function createSlot() {
-    if (!startsAt || !endsAt) {
-      setErrorMessage("請填開始與結束時間");
-      return;
-    }
-
-    if (localMode) {
-      const nextSlot: AvailabilitySlot = { id: crypto.randomUUID(), starts_at: new Date(startsAt).toISOString(), ends_at: new Date(endsAt).toISOString(), city, slot_type: slotType, status: "available", note: note || null };
-      const next = [...slots, nextSlot]; setSlots(next); localStorage.setItem("bodyfix-preview-slots", JSON.stringify(next)); setStartsAt(""); setEndsAt(""); setNote(""); setErrorMessage(""); return;
-    }
-
-    const res = await fetch("/api/admin/slots", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        starts_at: new Date(startsAt).toISOString(),
-        ends_at: new Date(endsAt).toISOString(),
-        city,
-        slot_type: slotType,
-        note: note || null
-      })
-    });
-
-    if (!res.ok) {
-      setErrorMessage("新增時段失敗，請確認時間格式與後台權限。");
-      return;
-    }
-
-    setStartsAt("");
-    setEndsAt("");
-    setNote("");
-    setErrorMessage("");
-    await loadAdminData();
-  }
-
-  async function deleteSlot(id: string) {
-    if (!confirm("確定刪除此時段？")) return;
-
-    if (localMode) { const next = slots.filter((slot) => slot.id !== id); setSlots(next); localStorage.setItem("bodyfix-preview-slots", JSON.stringify(next)); return; }
-
-    const res = await fetch("/api/admin/slots/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id })
-    });
-
-    if (!res.ok) {
-      setErrorMessage("刪除失敗，可能已有預約資料。建議改成 closed。");
-      return;
-    }
-
-    await loadAdminData();
-  }
-
-  function updateLocalSlot(id: string) {
-    const next = slots.map((slot) => slot.id === id ? { ...slot, status: slot.status === "available" ? "closed" as const : "available" as const } : slot);
-    setSlots(next); localStorage.setItem("bodyfix-preview-slots", JSON.stringify(next));
-  }
-
-  if (!authed) {
+  if (accessState === "login" || accessState === "error") {
     return (
       <main className="bf-container bf-admin-login-shell">
         <section className="bf-hero">
           <div className="bf-brand"><span className="bf-logo-box">BF</span> BODYFIX ADMIN</div>
           <h1>管理後台登入</h1>
           <div className="bf-form bf-login-form">
-            <label>
-              後台密碼
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </label>
+            <label>後台密碼<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
             <button className="bf-primary" type="button" onClick={login}>登入</button>
-            {bypassMode && (
-              <button className="bf-small-btn" type="button" onClick={login}>直接進入 Preview 後台</button>
-            )}
-            {bypassMode && (
-              <div className="bf-notice">Preview Local Mode｜資料只存在此瀏覽器，不會寫入正式資料庫。</div>
-            )}
-            {errorMessage && <div className="bf-notice">{errorMessage}</div>}
+            {errorMessage ? <div className="bf-notice" role="alert">{errorMessage}</div> : null}
           </div>
         </section>
       </main>
@@ -274,146 +110,22 @@ export default function AdminPage() {
       <section className="bf-admin-operations" aria-labelledby="admin-operations-title">
         <h2 id="admin-operations-title" className="bf-section-title">核心營運入口</h2>
         <div className="bf-admin-entry-grid">
-          <article className="bf-admin-entry-card">
-            <p className="bf-admin-entry-eyebrow">BOOKING</p><h3>預約管理</h3>
-            <p>管理可約時段、預約申請、確認、取消與完成。</p>
-            <Link className="bf-admin-entry-link" href="/admin#booking">管理預約 →</Link>
-          </article>
-          <article className="bf-admin-entry-card">
-            <p className="bf-admin-entry-eyebrow">PULSE</p><h3>今日營運節奏</h3>
-            <p>查看今日收入、目標差額、未來預約與回訪狀態。</p>
-            <Link className="bf-admin-entry-link" href="/admin/crm/pulse">進入 Pulse →</Link>
-          </article>
-          <article className="bf-admin-entry-card">
-            <p className="bf-admin-entry-eyebrow">STRATEGIC DECISIONS</p><h3>策略決策</h3>
-            <p>判斷目前工作應該繼續、修正、測試或暫停，讓時間與資源流向更值得投入的地方。</p>
-            <Link className="bf-admin-entry-link" href="/admin/strategic-decisions">進入策略決策 →</Link>
-          </article>
-          <article className="bf-admin-entry-card">
-            <p className="bf-admin-entry-eyebrow">OPERATIONS</p><h3>營運工具</h3>
-            <p>Business Foundation、AI Copilot、Codebook、Calendar Backfill 與其他系統維護工具。</p>
-            <Link className="bf-admin-entry-link" href="/admin/crm">查看營運工具 →</Link>
-          </article>
+          <AdminEntry eyebrow="BOOKING" title="預約管理" description="管理可約時段、預約申請、確認、取消與完成。" label="管理預約 →" href="/admin/booking" />
+          <AdminEntry eyebrow="PULSE" title="今日營運節奏" description="查看今日收入、目標差額、未來預約與回訪狀態。" label="進入 Pulse →" href="/admin/crm/pulse" />
+          <AdminEntry eyebrow="STRATEGIC DECISIONS" title="策略決策" description="判斷目前工作應該繼續、修正、測試或暫停，讓時間與資源流向更值得投入的地方。" label="進入策略決策 →" href="/admin/strategic-decisions" />
+          <AdminEntry eyebrow="OPERATIONS" title="營運工具" description="Business Foundation、AI Copilot、Codebook、Calendar Backfill 與其他系統維護工具。" label="查看營運工具 →" href="/admin/crm" />
         </div>
       </section>
 
-      {bypassMode && (
-        <div className="bf-notice bf-admin-notice">Preview Local Mode｜資料只存在此瀏覽器，不會寫入正式資料庫。</div>
-      )}
-      {errorMessage && <div className="bf-notice bf-admin-notice">{errorMessage}</div>}
-      <AdminDataStatusCard diagnostics={diagnostics} errorMessage={errorMessage} />
-
-      <section className="bf-admin-booking-section" id="booking" aria-labelledby="booking-title">
-        <h2 id="booking-title" className="bf-section-title">預約管理</h2>
-        <p className="bf-subtitle">管理可約時段、預約申請與目前預約狀態。</p>
-      </section>
-
-      <section className="bf-card bf-section-gap">
-        <h2 className="bf-section-title">新增可約時段</h2>
-        <div className="bf-form">
-          <label>開始時間<input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} /></label>
-          <label>結束時間<input type="datetime-local" value={endsAt} onChange={(e) => setEndsAt(e.target.value)} /></label>
-          <label>
-            城市
-            <select value={city} onChange={(e) => setCity(e.target.value as AvailabilitySlot["city"])}>
-              <option value="taipei">台北</option>
-              <option value="taichung">台中</option>
-              <option value="kaohsiung">高雄</option>
-            </select>
-          </label>
-          <label>
-            時段類型
-            <select value={slotType} onChange={(e) => setSlotType(e.target.value as AvailabilitySlot["slot_type"])}>
-              <option value="normal">一般</option>
-              <option value="late_night">深夜</option>
-              <option value="last_minute">臨時空檔</option>
-              <option value="vip_hold">VIP 保留，前台不顯示</option>
-            </select>
-          </label>
-          <label>備註<input value={note} onChange={(e) => setNote(e.target.value)} /></label>
-          <button className="bf-primary" type="button" onClick={createSlot}>新增時段</button>
-        </div>
-      </section>
-
-      <section className="bf-card bf-section-gap">
-        <h2 className="bf-section-title">預約申請</h2>
-        <div className="bf-table-wrap">
-          <table className="bf-admin-table">
-            <thead>
-              <tr>
-                <th>狀態</th>
-                <th>時間</th>
-                <th>客戶</th>
-                <th>服務</th>
-                <th>身體狀況</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td>{booking.status}</td>
-                  <td>{booking.availability_slots ? fmt(booking.availability_slots.starts_at) : "未連結時段"}</td>
-                  <td>
-                    <strong>{booking.client_name}</strong><br />
-                    LINE：{booking.line_id}<br />
-                    {booking.phone || ""}
-                  </td>
-                  <td>
-                    {booking.service_name || booking.services?.display_name_zh || booking.services?.name || booking.service_id}
-                    {booking.selected_fascia_line_name && <><br />指定：{booking.selected_fascia_line_name}</>}
-                    {booking.source && <><br />來源：{booking.source}{booking.quiz_result_type ? `（${booking.quiz_result_type}）` : ""}</>}
-                  </td>
-                  <td>
-                    {booking.body_notes}<br />{booking.message}
-                    {booking.preferred_date && <><br />偏好：{booking.preferred_date}／{booking.preferred_time_range}</>}
-                    {booking.accept_last_minute_slot && <><br />臨時空檔：{booking.accept_last_minute_slot}</>}
-                  </td>
-                  <td>
-                    <div className="bf-admin-actions">
-                      <button className="bf-small-btn" type="button" onClick={() => updateBookingStatus(booking.id, "confirmed")}>確認</button>
-                      <button className="bf-small-btn" type="button" onClick={() => updateBookingStatus(booking.id, "cancelled")}>取消</button>
-                      <button className="bf-small-btn" type="button" onClick={() => updateBookingStatus(booking.id, "completed")}>完成</button>
-                      <button className="bf-small-btn" type="button" onClick={() => updateBookingStatus(booking.id, "expired")}>釋放</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="bf-card bf-section-gap">
-        <h2 className="bf-section-title">所有時段</h2>
-        <p className="bf-subtitle">服務項目數：{services.length}</p>
-        <div className="bf-table-wrap">
-          <table className="bf-admin-table">
-            <thead>
-              <tr>
-                <th>時間</th>
-                <th>城市</th>
-                <th>類型</th>
-                <th>狀態</th>
-                <th>備註</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {slots.map((slot) => (
-                <tr key={slot.id}>
-                  <td>{fmt(slot.starts_at)} 到 {fmt(slot.ends_at)}</td>
-                  <td>{slot.city}</td>
-                  <td>{slot.slot_type}</td>
-                  <td>{slot.status}</td>
-                  <td>{slot.note}</td>
-                  <td><div className="bf-admin-actions">{localMode && <button className="bf-small-btn" type="button" onClick={() => updateLocalSlot(slot.id)}>{slot.status === "available" ? "完成／關閉" : "重新開放"}</button>}<button className="bf-small-btn" type="button" onClick={() => deleteSlot(slot.id)}>刪除</button></div></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {previewMode ? <div className="bf-notice bf-admin-notice">Preview Mode｜此環境供功能驗收使用；Booking 維持 Local Preview Mode，不會寫入正式資料庫。</div> : null}
     </main>
   );
+}
+
+function AdminAccessStatus({ message }: { message: string }) {
+  return <main className="bf-container bf-admin-login-shell"><section className="bf-hero"><div className="bf-brand"><span className="bf-logo-box">BF</span> BODYFIX ADMIN</div><p className="bf-subtitle" role="status">{message}</p></section></main>;
+}
+
+function AdminEntry({ eyebrow, title, description, label, href }: { eyebrow: string; title: string; description: string; label: string; href: string }) {
+  return <article className="bf-admin-entry-card"><p className="bf-admin-entry-eyebrow">{eyebrow}</p><h3>{title}</h3><p>{description}</p><Link className="bf-admin-entry-link" href={href}>{label}</Link></article>;
 }

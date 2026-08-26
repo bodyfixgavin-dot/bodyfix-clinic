@@ -705,7 +705,7 @@ export function QuickCheckoutPage({ customers }: { customers: CustomerOption[] }
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-[#172333] sm:text-4xl">服務後快速記錄 v0.2</h1>
         <p className="mt-2 text-sm leading-6 text-[#6f6a63]">此頁同時處理完成服務、收款與扣堂，暫時保留為 transitional fulfillment tool。</p>
-        <Link className="mt-3 inline-flex min-h-12 items-center rounded-2xl border border-[rgba(23,35,51,.18)] px-4 py-2 font-bold text-[#172333]" href="/admin#booking">回預約管理 →</Link>
+        <Link className="mt-3 inline-flex min-h-12 items-center rounded-2xl border border-[rgba(23,35,51,.18)] px-4 py-2 font-bold text-[#172333]" href="/admin/booking">回預約管理 →</Link>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#6f6a63] sm:text-base">
           依照現場操作順序完成：先確認客戶，再選主服務、加購、方案、扣堂 / 收款、紀錄與追蹤提醒。
         </p>

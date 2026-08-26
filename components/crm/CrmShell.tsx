@@ -20,7 +20,7 @@ const dashboardGroups: DashboardGroup[] = [
       { label: "問卷回覆", href: "/admin/crm/intake-submissions" },
       { label: "方案轉換", href: "/admin/crm/conversion" },
       { label: "Pulse", href: "/admin/crm/pulse" },
-      { label: "預約管理", href: "/admin#booking" },
+      { label: "預約管理", href: "/admin/booking" },
       { label: "行事曆回填", href: "/admin/crm/calendar-backfill" },
     ],
   },

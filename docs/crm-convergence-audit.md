@@ -44,7 +44,7 @@ introspection and row counts therefore remain an Owner-run preflight.
 | BodyFix Admin | `/admin` | `/dashboard` | Admin is the sole operations entry; dashboard root uses 308 compatibility |
 | CRM | `/admin/crm/**` | `/clinic/**` | 308 compatibility preserving subpath and query |
 | Pulse | `/admin/crm/pulse/**` | `/admin/pulse/**` | One moved implementation; 308 compatibility preserving subpath and query |
-| Booking | `/admin#booking` | booking controls formerly presented as all of `/admin` | Existing UI and APIs retained in an anchored Admin module |
+| Booking | `/admin/booking` | booking controls formerly presented directly on `/admin` | Existing UI and APIs extracted unchanged into an authenticated canonical module |
 | Customer finance | future CRM finance module | `/dashboard/customers` | Transitional: balances, low-credit, unpaid and flexible-payment views are not yet present in CRM clients |
 | Fulfillment checkout | future canonical appointment/finance workflow | `/dashboard/appointments` | Transitional: combines completed service, payment, ledger and follow-up actions; unsafe to redirect to one existing page |
 | Digital readings | future Chart Navigator domain route | `/dashboard/readings` | Transitional: digital orders and campaign entitlements cross the BodyFix domain boundary; not linked from primary navigation |
@@ -56,6 +56,13 @@ introspection and row counts therefore remain an Owner-run preflight.
 The transitional `/api/clinic/**` namespace remains the shared, authenticated
 service layer during UI route convergence. This round does not rename those
 handlers or create a second API implementation.
+
+Admin, CRM, Booking, and Pulse use the same signed `bodyfix_admin_session`.
+When Preview bypass is explicitly allowed outside Vercel production, `/admin`
+bootstraps that server-readable session through the existing login endpoint and
+keeps Booking in Local Preview Mode. Production continues to require the admin
+password; Preview authentication does not grant permission to write production
+data.
 
 ### Round boundary
 
