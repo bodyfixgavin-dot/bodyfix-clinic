@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { BODYFIX_SERVICES, MOVEMENT_TRAINING } from '@/lib/bodyfix-services';
 
 import styles from './BodyFixWebsite.module.css';
 
@@ -32,23 +33,13 @@ const methodSteps = [
   ['04', 'Return｜接回', '讓你能真正使用身體、訓練與恢復，而不只是停在短暫放鬆。'],
 ];
 
-const serviceEntrances = [
-  {
-    num: '01',
-    title: '筋膜鏈整理',
-    text: '從筋膜鏈與張力路徑開始判讀，在低痛感、可呼吸的深度裡整理身體。',
-  },
-  {
-    num: '02',
-    title: '張力判讀與動作整合',
-    text: '看懂身體怎麼代償與分工，再把整理後的改變接回動作與訓練。',
-  },
-  {
-    num: '03',
-    title: '骨盆核心整理',
-    text: '從骨盆、髖、呼吸與深層核心重新找回穩定。',
-  },
-];
+const serviceEntrances = BODYFIX_SERVICES.map((service, index) => ({
+  num: String(index + 1).padStart(2, '0'),
+  title: service.name,
+  text: service.description,
+  meta: `${service.duration}｜${service.price}${service.badge ? `｜${service.badge}` : ''}`,
+  href: `/intake.html?service=${service.id}`,
+}));
 
 const brandLevels = [
   {
@@ -165,7 +156,7 @@ export default function BodyFixWebsitePage() {
             <span className={styles.subtitle}>— The Method</span>
           </div>
           <p className={styles.copyWide}>
-            BodyFix 不是追求越痛越有效，也不是單純把緊繃揉開。核心是判讀身體目前怎麼撐住、哪裡在代償，再用身體可接受的深度讓張力重新分工。
+            BodyFix 不只是按摩。核心是判讀身體目前怎麼撐住、哪裡在代償，再用身體可接受的深度讓張力重新分工。
           </p>
           <div className={styles.methodGrid}>
             {methodSteps.map(([num, title, text]) => (
@@ -187,7 +178,7 @@ export default function BodyFixWebsitePage() {
             <span className={styles.subtitle}>— Services</span>
           </div>
           <p className={styles.copyWide}>
-            BodyFix 目前專注在身體服務。從筋膜鏈整理、張力判讀與動作整合，到骨盆核心整理，先選最貼近現在狀態的入口，再透過預約前問卷整理需求。
+            BodyFix 目前提供完整的身體整理與 Movement Training。先選最貼近現在狀態的入口，再透過預約前問卷整理需求。
           </p>
           <div className={styles.serviceGrid}>
             {serviceEntrances.map((service) => (
@@ -195,8 +186,21 @@ export default function BodyFixWebsitePage() {
                 <span className={styles.cardNum}>{service.num}</span>
                 <h3>{service.title}</h3>
                 <p>{service.text}</p>
+                <p><strong>{service.meta}</strong></p>
+                <a href={service.href}>填寫這項服務問卷 →</a>
               </article>
             ))}
+            <article className={styles.serviceCard}>
+              <span className={styles.cardNum}>06</span>
+              <h3>{MOVEMENT_TRAINING.name}</h3>
+              <p>{MOVEMENT_TRAINING.planName}，單堂 {MOVEMENT_TRAINING.duration}｜{MOVEMENT_TRAINING.singlePrice}。另有 12、24、36 堂與訓練＋筋膜整理方案。</p>
+              <a href="/intake.html?service=movement">填寫 Movement 問卷 →</a>
+            </article>
+          </div>
+          <div className={styles.brandIntro}>
+            <p className={styles.brandStatement}>不知道這次該選哪一種？</p>
+            <p>先花 2–3 分鐘告訴我你現在的身體狀況，我會依筋膜線、張力分工與你的使用情境，協助判斷適合的整理方向。</p>
+            <a className={styles.primaryBtn} href="/intake.html">開始 BodyFix Intake →</a>
           </div>
         </div>
       </section>
@@ -333,7 +337,7 @@ export default function BodyFixWebsitePage() {
           </div>
           <aside className={styles.contactCard}>
             <span className={styles.smallLabel}>Contact Channels</span>
-            <a className={styles.contactLink} href="/intake"><div><strong>填寫預約前問卷</strong><span>建議從這裡開始</span></div><span>→</span></a>
+            <a className={styles.contactLink} href="/intake.html"><div><strong>開始 BodyFix Intake</strong><span>約 2–3 分鐘，建議從這裡開始</span></div><span>→</span></a>
             <a className={styles.contactLink} href="https://line.me/R/ti/p/@359gzxzi" target="_blank" rel="noreferrer"><div><strong>LINE 官方帳號</strong><span>@359gzxzi</span></div><span>→</span></a>
             <a className={styles.contactLink} href="https://instagram.com/bodyfix.fascia" target="_blank" rel="noreferrer"><div><strong>Instagram 私訊</strong><span>@bodyfix.fascia</span></div><span>→</span></a>
             <a className={styles.contactLink} href="#city"><div><strong>城市場次登記</strong><span>台中、高雄與需求城市</span></div><span>→</span></a>
